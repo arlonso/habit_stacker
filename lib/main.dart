@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const HabitStacker());
@@ -11,15 +13,48 @@ class Habit {
   String desc;
 
   Habit(this.name, this.duration, [this.desc = ""]);
+
+  Map toJson() => {'name': name, 'duration': duration, 'desc': desc};
+
+  factory Habit.fromJson(dynamic json) {
+    return Habit(json['name'] as String, json['duration'] as int,
+        json['desc'] as String);
+  }
 }
 
 class HabitStack {
+  List<Habit> habits;
   String name;
   int duration;
   String desc;
-  List<Habit> habits;
 
   HabitStack(this.habits, this.name, this.duration, [this.desc = ""]);
+
+  Map toJson() {
+    List<Map> habits = this.habits.map((i) => i.toJson()).toList();
+    return {'habits': habits, 'name': name, 'duration': duration, 'desc': desc};
+  }
+
+  factory HabitStack.fromJson(dynamic json) {
+    if (json['habits'] != null) {
+      var habitObjsJson = json['habits'] as List;
+      List<Habit> _habits =
+          habitObjsJson.map((habitJson) => Habit.fromJson(habitJson)).toList();
+      return HabitStack(
+        _habits,
+        json['name'] as String,
+        json['duration'] as int,
+        json['desc'] as String,
+      );
+    } else {
+      return HabitStack(
+        [] as List<Habit>,
+        json['name'] as String,
+        json['duration'] as int,
+        json['desc'] as String,
+      );
+    }
+  }
 }
 
 typedef HabitStackChangedCallback = Function(Habit habit, bool inStack);
@@ -126,13 +161,24 @@ class _HabitStackListState extends State<HabitStackList> {
     }
   }
 
-  void _saveHabitStack() {
-    HabitStack newHabitStack = HabitStack(
-        _habitStack,
-        NewHabitStackNameController.text,
-        _duration,
-        NewHabitStackDescController.text);
+  void _saveHabitStack() async {
+    String name = NewHabitStackNameController.text;
+    String desc = NewHabitStackDescController.text;
+    HabitStack newHabitStack = HabitStack(_habitStack, name, _duration, desc);
     widget.onStackOverviewChanged(newHabitStack, false);
+    // convert habit stack to JSON String
+    String jsonHabitStack = jsonEncode(newHabitStack);
+    // obtain shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    // check if string list was already created
+    if (prefs.getStringList('habitStacks') != null) {
+      final habitStacks = prefs.getStringList('habitStacks');
+      habitStacks?.add(jsonHabitStack);
+      prefs.setStringList('habitStacks', habitStacks!);
+    } else {
+      prefs.setStringList('habitStacks', [jsonHabitStack]);
+    }
+
     Navigator.pop(context);
   }
 
@@ -376,7 +422,53 @@ class HabitStackOverview extends StatefulWidget {
 }
 
 class _HabitStackOverviewState extends State<HabitStackOverview> {
-  final _habitStacks = <HabitStack>[];
+  List<HabitStack> _habitStacks = <HabitStack>[];
+
+  Future<void> fetchHabitStacks() async {
+    // obtain shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    final habitStacksJSON = prefs.getStringList('habitStacks');
+    if (habitStacksJSON?.isEmpty ?? true) return;
+    _habitStacks = habitStacksJSON!
+        .map((habitStack) => HabitStack.fromJson(jsonDecode(habitStack)))
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      // Waiting your async function to finish
+      future: fetchHabitStacks(),
+      builder: (context, snapshot) {
+        // Async function finished
+        if (snapshot.connectionState == ConnectionState.done) {
+          // To access the function data when is done
+          // you can take it from **snapshot.data**
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Habit Stacker'),
+            ),
+            body: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              children: _habitStacks.map((HabitStack habitStack) {
+                return HabitStackOverviewItem(
+                  habitStack: habitStack,
+                  inOverview: _habitStacks.contains(habitStack),
+                  onStackOverviewChanged: _handleStackOverviewChanged,
+                );
+              }).toList(),
+            ),
+            floatingActionButton: AddStackButton(
+              onStackOverviewChanged: _handleStackOverviewChanged,
+            ),
+          );
+        } else {
+          // Show loading during the async function finish to process
+          return const Scaffold(body: CircularProgressIndicator());
+        }
+      },
+    );
+  }
 
   void _handleStackOverviewChanged(HabitStack habitStack, bool inOverview) {
     setState(() {
@@ -392,30 +484,6 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
         _habitStacks.remove(habitStack);
       }
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Habit Stacker'),
-        ),
-        body: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          children: _habitStacks.map((HabitStack habitStack) {
-            return HabitStackOverviewItem(
-              habitStack: habitStack,
-              inOverview: _habitStacks.contains(habitStack),
-              onStackOverviewChanged: _handleStackOverviewChanged,
-            );
-          }).toList(),
-        ),
-        floatingActionButton: AddStackButton(
-          onStackOverviewChanged: _handleStackOverviewChanged,
-        ),
-      ),
-    );
   }
 }
 
