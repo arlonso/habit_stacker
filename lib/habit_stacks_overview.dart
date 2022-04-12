@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
 import 'habit_stack.dart';
 import 'habit_stack_list.dart';
-import 'habit_stack_overview_item.dart';
+import 'habit_stacks_overview_item.dart';
 import 'stack_overview_changed_callback.dart';
 
 class HabitStackOverview extends StatefulWidget {
@@ -16,23 +16,35 @@ class HabitStackOverview extends StatefulWidget {
 }
 
 class _HabitStackOverviewState extends State<HabitStackOverview> {
-  List<HabitStack> _habitStacks = <HabitStack>[];
+  final List<HabitStack> _habitStacks = <HabitStack>[];
+  late Future future;
+
+  @override
+  void initState() {
+    future = fetchHabitStacks();
+    super.initState();
+  }
 
   Future<void> fetchHabitStacks() async {
-    // obtain shared preferences
+    // Obtain shared preferences.
     final prefs = await SharedPreferences.getInstance();
-    final habitStacksJSON = prefs.getStringList('habitStacks');
-    if (habitStacksJSON?.isEmpty ?? true) return;
-    _habitStacks = habitStacksJSON!
-        .map((habitStack) => HabitStack.fromJson(jsonDecode(habitStack)))
-        .toList();
+    final keys = prefs.getKeys();
+    if (keys.isEmpty) return;
+    for (var key in keys) {
+      if (key.contains('habitstack-')) {
+        HabitStack stack =
+            HabitStack.fromJson(jsonDecode(prefs.getString(key)!));
+        _habitStacks.add(stack);
+      }
+    }
+    print("habit Stacks: $_habitStacks");
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       // Waiting your async function to finish
-      future: fetchHabitStacks(),
+      future: future,
       builder: (context, snapshot) {
         // Async function finished
         if (snapshot.connectionState == ConnectionState.done) {
@@ -64,7 +76,8 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
     );
   }
 
-  void _handleStackOverviewChanged(HabitStack habitStack, bool inOverview) {
+  void _handleStackOverviewChanged(
+      HabitStack habitStack, bool inOverview, bool toBeDeleted) {
     setState(() {
       // When a user changes what's in the stack, you need
       // to change _habitStack inside a setState call to
@@ -74,7 +87,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
       print("HabitStackChanged!");
       if (!inOverview) {
         _habitStacks.add(habitStack);
-      } else {
+      } else if (toBeDeleted) {
         _habitStacks.remove(habitStack);
       }
     });
@@ -96,7 +109,7 @@ class AddStackButton extends StatelessWidget {
           isScrollControlled: true,
           context: context,
           builder: (BuildContext context) {
-            return HabitStackList(onStackOverviewChanged);
+            return HabitStackList(onStackOverviewChanged, null);
           },
         );
       },

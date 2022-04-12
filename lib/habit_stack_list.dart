@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
 import 'Habit.dart';
 import 'habit_stack.dart';
@@ -10,38 +10,59 @@ import 'new_habit.dart';
 import 'stack_overview_changed_callback.dart';
 
 class HabitStackList extends StatefulWidget {
-  HabitStackList(this.onStackOverviewChanged, {Key? key}) : super(key: key);
+  HabitStackList(this.onStackOverviewChanged, this.habitStack, {Key? key})
+      : super(key: key);
   final StackOverviewChangedCallback onStackOverviewChanged;
+  final HabitStack? habitStack;
 
   @override
   State<HabitStackList> createState() => _HabitStackListState();
 }
 
 class _HabitStackListState extends State<HabitStackList> {
-  final _habitStack = <Habit>[];
-
-  final NewHabitStackNameController = TextEditingController();
-  final NewHabitStackDescController = TextEditingController();
   bool _isSaveButtonDisabled = true;
+  bool _isInOverview = false;
 
   // String _HabitStackItemName = "";
   // String _HabitStackItemDesc = "";
   int _duration = 0;
+  List<Habit> _habitStack = [];
+
+  late TextEditingController newHabitStackNameController;
+  late TextEditingController newHabitStackDescController;
 
   @override
   void initState() {
     super.initState();
 
-    // Start listening to changes.
-    NewHabitStackNameController.addListener(_checkSaveButtonStatus);
+    setState(() {
+      if (widget.habitStack != null) {
+        // initialize habits
+        _habitStack = widget.habitStack!.habits;
+        // initialize duration
+        _duration = widget.habitStack!.duration;
+        newHabitStackNameController =
+            TextEditingController(text: widget.habitStack!.name);
+        newHabitStackDescController = newHabitStackDescController =
+            TextEditingController(text: widget.habitStack!.desc);
+        _isSaveButtonDisabled = false;
+        _isInOverview = true;
+      } else {
+        newHabitStackNameController = TextEditingController();
+        newHabitStackDescController =
+            newHabitStackDescController = TextEditingController();
+      }
+      // Start listening to changes.
+      newHabitStackNameController.addListener(_checkSaveButtonStatus);
+    });
   }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is removed from the widget tree.
     // This also removes the _printLatestValue listener.
-    NewHabitStackNameController.dispose();
-    NewHabitStackDescController.dispose();
+    newHabitStackNameController.dispose();
+    newHabitStackDescController.dispose();
     super.dispose();
   }
 
@@ -64,34 +85,42 @@ class _HabitStackListState extends State<HabitStackList> {
   }
 
   void _checkSaveButtonStatus() {
-    if (NewHabitStackNameController.text != "") {
+    if (newHabitStackNameController.text == "" || _habitStack.isEmpty) {
       setState(() {
-        _isSaveButtonDisabled = false;
+        _isSaveButtonDisabled = true;
       });
     } else {
       setState(() {
-        _isSaveButtonDisabled = true;
+        _isSaveButtonDisabled = false;
       });
     }
   }
 
   void _saveHabitStack() async {
-    String name = NewHabitStackNameController.text;
-    String desc = NewHabitStackDescController.text;
-    HabitStack newHabitStack = HabitStack(_habitStack, name, _duration, desc);
-    widget.onStackOverviewChanged(newHabitStack, false);
-    // convert habit stack to JSON String
-    String jsonHabitStack = jsonEncode(newHabitStack);
     // obtain shared preferences
     final prefs = await SharedPreferences.getInstance();
-    // check if string list was already created
-    if (prefs.getStringList('habitStacks') != null) {
-      final habitStacks = prefs.getStringList('habitStacks');
-      habitStacks?.add(jsonHabitStack);
-      prefs.setStringList('habitStacks', habitStacks!);
+
+    HabitStack finalHabitStack;
+
+    if (_isInOverview) {
+      widget.habitStack!.habits = _habitStack;
+      widget.habitStack!.name = newHabitStackNameController.text;
+      widget.habitStack!.desc = newHabitStackDescController.text;
+      widget.habitStack!.duration = _duration;
+      finalHabitStack = widget.habitStack!;
     } else {
-      prefs.setStringList('habitStacks', [jsonHabitStack]);
+      String name = newHabitStackNameController.text;
+      String desc = newHabitStackDescController.text;
+      finalHabitStack = HabitStack(_habitStack, name, _duration, desc);
     }
+    //trigger callback function to update the state
+    widget.onStackOverviewChanged(finalHabitStack, _isInOverview, false);
+
+    // convert habit stack to JSON String
+    String jsonHabitStack = jsonEncode(finalHabitStack);
+
+    // save habit stack in shared preferences
+    prefs.setString('habitstack-${finalHabitStack.name}', jsonHabitStack);
 
     Navigator.pop(context);
   }
@@ -107,14 +136,14 @@ class _HabitStackListState extends State<HabitStackList> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 TextField(
-                  controller: NewHabitStackNameController,
+                  controller: newHabitStackNameController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter a stack name',
                   ),
                 ),
                 TextField(
-                  controller: NewHabitStackDescController,
+                  controller: newHabitStackDescController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter a stack description',

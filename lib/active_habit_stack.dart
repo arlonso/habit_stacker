@@ -1,11 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:habit_stacker/Habit.dart';
 import 'habit_stack.dart';
 
 class ActiveHabitStack extends StatefulWidget {
-  const ActiveHabitStack({Key? key}) : super(key: key);
+  const ActiveHabitStack({required this.habitStack, Key? key})
+      : super(key: key);
+
+  final HabitStack habitStack;
 
   @override
   State<ActiveHabitStack> createState() => _ActiveHabitStackState();
@@ -13,12 +17,16 @@ class ActiveHabitStack extends StatefulWidget {
 
 class _ActiveHabitStackState extends State<ActiveHabitStack>
     with TickerProviderStateMixin {
-  final HabitStack _habitStack = HabitStack([
-    Habit("iss was", 4, "what is you doin??"),
-    Habit("trink was", 8),
-    Habit("sitz was", 10)
-  ], "Top of the morning", 22);
+  // final HabitStack _habitStack = HabitStack([
+  //   Habit("iss was", 4, "what is you doin??"),
+  //   Habit("trink was", 8),
+  //   Habit("sitz was", 10)
+  // ], "Top of the morning", 22);
+
+  bool _timePaused = false;
+  bool _routineFinished = false;
   Timer? _timer;
+  double _lastControllerValue = 0;
   late int _timerDuration;
   late Habit _activeHabit;
   late AnimationController controller;
@@ -39,7 +47,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   void initState() {
     //initialize active habit
     setState(() {
-      _activeHabit = _habitStack.habits[0];
+      _activeHabit = widget.habitStack.habits[0];
       final durationInSeconds = _activeHabit.duration * 60;
       _timerDuration = durationInSeconds;
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -49,19 +57,22 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     //initialize progress animation
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: _timerDuration))
+      // upperBound: _timerDuration.toDouble())
       ..addListener(() {
+        print(controller.value);
         setState(() {});
       });
-    controller.reverse(from: _timerDuration.toDouble());
+    controller.reverse(from: (_timerDuration.toDouble()));
+
     //initialize timer
     super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _timer?.cancel();
     controller.dispose();
+    super.dispose();
   }
 
   String _intToTimeLeft(int value) {
@@ -84,8 +95,14 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
 
   void _moveToNextHabit() {
     setState(() {
-      final index = _habitStack.habits.indexOf(_activeHabit);
-      _activeHabit = _habitStack.habits[index + 1];
+      final index = widget.habitStack.habits.indexOf(_activeHabit);
+
+      if (widget.habitStack.habits.length - 1 > index) {
+        _activeHabit = widget.habitStack.habits[index + 1];
+      } else {
+        _routineFinished = true;
+      }
+
       final durationInSeconds = _activeHabit.duration * 60;
       _timerDuration = durationInSeconds;
       //reset timer
@@ -104,18 +121,25 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
 
   void _playPauseTimer() {
     if (_timer != null) {
+      _timePaused = true;
       _timer?.cancel();
       _timer = null;
+
+      // save controller value
+      setState(() {
+        _lastControllerValue = controller.value;
+      });
       // stop animation
       controller.stop(canceled: false);
     } else {
+      _timePaused = false;
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         _startTimer();
       });
       print(_timerDuration);
       //continue animation
-      controller.reverse(from: _activeHabit.duration.toDouble());
-      controller.value = _timerDuration.toDouble();
+      controller.reverse(from: _lastControllerValue);
+      // controller.value = _timerDuration.toDouble();
     }
   }
 
@@ -131,59 +155,86 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(
-                _activeHabit.name.toUpperCase(),
-                style: Theme.of(context).textTheme.headline4,
-              ),
-              Text(
-                _activeHabit.desc,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              Text(
-                _intToTimeLeft(_timerDuration),
-                style: Theme.of(context).textTheme.headline2,
-              ),
-              LinearProgressIndicator(
-                value: controller.value,
-                semanticsLabel: 'Linear progress indicator',
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color.fromARGB(255, 142, 132, 231),
-                    child: IconButton(
-                      iconSize: 30,
-                      color: Colors.white,
-                      icon: const Icon(Icons.exit_to_app),
-                      onPressed: () => print("TEST"),
+            children: _routineFinished
+                ? [
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.cancel_outlined),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Center(
+                            child: Column(
+                          children: [
+                            Text(
+                              "${widget.habitStack.name} finished!"
+                                  .toUpperCase(),
+                              style: Theme.of(context).textTheme.headline4,
+                              textAlign: TextAlign.center,
+                            ),
+                            Lottie.asset(
+                              'assets/celebration.json',
+                              repeat: true,
+                            ),
+                          ],
+                        ))
+                      ],
+                    )
+                  ]
+                : [
+                    Text(
+                      _activeHabit.name.toUpperCase(),
+                      style: Theme.of(context).textTheme.headline4,
                     ),
-                  ),
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color.fromARGB(255, 142, 132, 231),
-                    child: IconButton(
-                      iconSize: 30,
-                      color: Colors.white,
-                      icon: const Icon(Icons.pause),
-                      onPressed: () => _playPauseTimer(),
+                    Text(
+                      _activeHabit.desc,
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                  ),
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color.fromARGB(255, 142, 132, 231),
-                    child: IconButton(
-                      iconSize: 30,
-                      color: Colors.white,
-                      icon: const Icon(Icons.check),
-                      onPressed: () => _moveToNextHabit(),
+                    Text(
+                      _intToTimeLeft(_timerDuration),
+                      style: Theme.of(context).textTheme.headline2,
                     ),
-                  )
-                ],
-              )
-            ],
+                    LinearProgressIndicator(
+                      value: controller.value,
+                      semanticsLabel: 'Linear progress indicator',
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color.fromARGB(255, 142, 132, 231),
+                          child: IconButton(
+                            iconSize: 30,
+                            color: Colors.white,
+                            icon: const Icon(Icons.exit_to_app),
+                            onPressed: () => print("TEST"),
+                          ),
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color.fromARGB(255, 142, 132, 231),
+                          child: IconButton(
+                            iconSize: 30,
+                            color: Colors.white,
+                            icon: Icon(
+                                _timePaused ? Icons.play_arrow : Icons.pause),
+                            onPressed: () => _playPauseTimer(),
+                          ),
+                        ),
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color.fromARGB(255, 142, 132, 231),
+                          child: IconButton(
+                            iconSize: 30,
+                            color: Colors.white,
+                            icon: const Icon(Icons.check),
+                            onPressed: () => _moveToNextHabit(),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
           ),
         ),
       ),
