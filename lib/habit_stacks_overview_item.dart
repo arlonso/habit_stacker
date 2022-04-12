@@ -26,7 +26,8 @@ class HabitStackOverviewItem extends StatelessWidget {
       title: Text(
         habitStack.name,
       ),
-      subtitle: Text('${habitStack.duration.toString()} min'),
+      subtitle: Text(
+          '${habitStack.desc != "" ? "${habitStack.desc} | " : ""}${habitStack.duration.toString()} min'),
       leading: IconButton(
           icon: const Icon(Icons.play_circle_outline),
           onPressed: () => {

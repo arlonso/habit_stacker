@@ -125,6 +125,16 @@ class _HabitStackListState extends State<HabitStackList> {
     Navigator.pop(context);
   }
 
+  void _updateHabitStackListOrder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex = newIndex - 1;
+      }
+      final element = _habitStack.removeAt(oldIndex);
+      _habitStack.insert(newIndex, element);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -137,14 +147,14 @@ class _HabitStackListState extends State<HabitStackList> {
               children: <Widget>[
                 TextField(
                   controller: newHabitStackNameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter a stack name',
                   ),
                 ),
                 TextField(
                   controller: newHabitStackDescController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Enter a stack description',
                   ),
@@ -174,7 +184,14 @@ class _HabitStackListState extends State<HabitStackList> {
                     ),
                   ],
                 ),
-                ListView.builder(
+                ReorderableListView.builder(
+                    onReorder: (oldIndex, newIndex) => {
+                          setState(
+                            () {
+                              _updateHabitStackListOrder(oldIndex, newIndex);
+                            },
+                          )
+                        },
                     shrinkWrap: true,
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     itemCount: _habitStack.length,
