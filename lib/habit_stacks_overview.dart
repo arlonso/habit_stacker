@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
 import 'habit_stack.dart';
-import 'habit_stack_list.dart';
+import 'edit_habit_stack.dart';
 import 'habit_stacks_overview_item.dart';
 import 'stack_overview_changed_callback.dart';
 

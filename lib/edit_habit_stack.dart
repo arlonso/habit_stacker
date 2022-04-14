@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import 'Habit.dart';
 import 'habit_stack.dart';
-import 'habit_stack_item.dart';
-import 'new_habit.dart';
+import 'edit_habit_stack_item.dart';
+import 'edit_habit.dart';
 import 'stack_overview_changed_callback.dart';
 
 class HabitStackList extends StatefulWidget {
@@ -33,8 +33,6 @@ class _HabitStackListState extends State<HabitStackList> {
 
   @override
   void initState() {
-    super.initState();
-
     setState(() {
       if (widget.habitStack != null) {
         // initialize habits
@@ -55,6 +53,8 @@ class _HabitStackListState extends State<HabitStackList> {
       // Start listening to changes.
       newHabitStackNameController.addListener(_checkSaveButtonStatus);
     });
+
+    super.initState();
   }
 
   @override
@@ -66,7 +66,8 @@ class _HabitStackListState extends State<HabitStackList> {
     super.dispose();
   }
 
-  void _handleHabitStackChanged(Habit habit, bool inStack) {
+  void _handleHabitStackChanged(
+      Habit habit, int oldDuration, bool inStack, bool toBeDeleted) {
     setState(() {
       // When a user changes what's in the stack, you need
       // to change _habitStack inside a setState call to
@@ -78,8 +79,12 @@ class _HabitStackListState extends State<HabitStackList> {
         print("${_habitStack} für folgende habit: ${habit.name}");
         _habitStack.add(habit);
         _duration += habit.duration;
-      } else {
+      } else if (toBeDeleted) {
         _habitStack.remove(habit);
+        _duration -= habit.duration;
+      } else if (oldDuration != habit.duration) {
+        int difference = habit.duration - oldDuration;
+        _duration += difference;
       }
     });
   }

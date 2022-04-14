@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habit_stacker/active_habit_stack.dart';
-import 'package:habit_stacker/habit_stack_list.dart';
+import 'package:habit_stacker/edit_habit_stack.dart';
 
 import 'habit_stack.dart';
 import 'stack_overview_changed_callback.dart';

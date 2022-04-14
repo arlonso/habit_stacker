@@ -208,7 +208,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                             iconSize: 30,
                             color: Colors.white,
                             icon: const Icon(Icons.exit_to_app),
-                            onPressed: () => print("TEST"),
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ),
                         CircleAvatar(

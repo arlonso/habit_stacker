@@ -5,41 +5,61 @@ import 'Habit.dart';
 import 'habit_stack_changed_callback.dart';
 
 class NewHabit extends StatefulWidget {
-  const NewHabit(this.onHabitStackChanged, {Key? key}) : super(key: key);
+  const NewHabit(this.onHabitStackChanged, {this.habit, Key? key})
+      : super(key: key);
   final HabitStackChangedCallback onHabitStackChanged;
+  final Habit? habit;
 
   @override
   State<NewHabit> createState() => _NewHabitState();
 }
 
 class _NewHabitState extends State<NewHabit> {
-  final NewHabitNameController = TextEditingController();
-  final NewHabitDescController = TextEditingController();
+  late TextEditingController newHabitNameController;
+  late TextEditingController newHabitDescController;
   bool _isSaveButtonDisabled = true;
+  bool _inStack = false;
 
   // String _HabitStackItemName = "";
   // String _HabitStackItemDesc = "";
   int _duration = 5;
+  int _oldDuration = 0;
 
   @override
   void initState() {
-    super.initState();
-
+    setState(() {
+      if (widget.habit != null) {
+        // initialize habit name, desc and duration
+        newHabitNameController =
+            TextEditingController(text: widget.habit!.name);
+        newHabitDescController =
+            TextEditingController(text: widget.habit!.desc);
+        _duration = widget.habit!.duration;
+        _oldDuration = widget.habit!.duration;
+        _isSaveButtonDisabled = false;
+        _inStack = true;
+      } else {
+        newHabitNameController = TextEditingController();
+        newHabitDescController = TextEditingController();
+      }
+    });
     // Start listening to changes.
-    NewHabitNameController.addListener(_checkSaveButtonStatus);
+    newHabitNameController.addListener(_checkSaveButtonStatus);
+
+    super.initState();
   }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is removed from the widget tree.
     // This also removes the _printLatestValue listener.
-    NewHabitNameController.dispose();
-    NewHabitDescController.dispose();
+    newHabitNameController.dispose();
+    newHabitDescController.dispose();
     super.dispose();
   }
 
   void _checkSaveButtonStatus() {
-    if (NewHabitNameController.text != "") {
+    if (newHabitNameController.text != "") {
       setState(() {
         _isSaveButtonDisabled = false;
       });
@@ -51,9 +71,17 @@ class _NewHabitState extends State<NewHabit> {
   }
 
   void _saveHabit() {
-    Habit newHabit = Habit(
-        NewHabitNameController.text, _duration, NewHabitDescController.text);
-    widget.onHabitStackChanged(newHabit, false);
+    final Habit finalHabit;
+    if (_inStack) {
+      widget.habit!.name = newHabitNameController.text;
+      widget.habit!.duration = _duration;
+      widget.habit!.desc = newHabitDescController.text;
+      finalHabit = widget.habit!;
+    } else {
+      finalHabit = Habit(
+          newHabitNameController.text, _duration, newHabitDescController.text);
+    }
+    widget.onHabitStackChanged(finalHabit, _oldDuration, _inStack, false);
     Navigator.pop(context);
   }
 
@@ -72,7 +100,7 @@ class _NewHabitState extends State<NewHabit> {
               border: OutlineInputBorder(),
               hintText: 'Enter a stack name',
             ),
-            controller: NewHabitNameController,
+            controller: newHabitNameController,
           ),
           Column(
             children: <Widget>[
@@ -94,7 +122,7 @@ class _NewHabitState extends State<NewHabit> {
               border: OutlineInputBorder(),
               hintText: 'Enter a description',
             ),
-            controller: NewHabitDescController,
+            controller: newHabitDescController,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

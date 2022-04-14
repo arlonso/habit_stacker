@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'Habit.dart';
+import 'edit_habit.dart';
 import 'habit_stack_changed_callback.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -27,7 +28,8 @@ class HabitStackItem extends StatelessWidget {
             SlidableAction(
               // An action can be bigger than the others.
               flex: 1,
-              onPressed: (context) => onHabitStackChanged(habit, inStack),
+              onPressed: (context) =>
+                  onHabitStackChanged(habit, habit.duration, inStack, true),
               backgroundColor: Color.fromARGB(255, 219, 34, 34),
               foregroundColor: Colors.white,
               icon: Icons.delete,
@@ -47,7 +49,17 @@ class HabitStackItem extends StatelessWidget {
           subtitle: Text('${habit.desc} | ${habit.duration.toString()} min'),
           trailing: IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () => print("open sheet")),
+              onPressed: () => showModalBottomSheet<void>(
+                    // radius: 25.0,
+                    // isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return NewHabit(
+                        onHabitStackChanged,
+                        habit: habit,
+                      );
+                    },
+                  )),
         ));
   }
 }
