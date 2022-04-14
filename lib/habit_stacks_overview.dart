@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:habit_stacker/custom/border_icon.dart';
+import 'package:habit_stacker/utils/constants.dart';
+import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -42,6 +45,10 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData themeData = Theme.of(context);
+    const double padding = 25;
+    const sidePadding = EdgeInsets.symmetric(horizontal: padding);
     return FutureBuilder(
       // Waiting your async function to finish
       future: future,
@@ -51,18 +58,54 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
           // To access the function data when is done
           // you can take it from **snapshot.data**
           return Scaffold(
-            appBar: AppBar(
-              title: const Text('Habit Stacker'),
-            ),
-            body: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              children: _habitStacks.map((HabitStack habitStack) {
-                return HabitStackOverviewItem(
-                  habitStack: habitStack,
-                  inOverview: _habitStacks.contains(habitStack),
-                  onStackOverviewChanged: _handleStackOverviewChanged,
-                );
-              }).toList(),
+            backgroundColor: Theme.of(context).primaryColor,
+            body: SafeArea(
+              child: Container(
+                width: size.width,
+                height: size.height,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      addVerticalSpace(padding),
+                      Padding(
+                        padding: sidePadding,
+                        child: Text(
+                          "Hello it's time for:",
+                          style: themeData.textTheme.headline1,
+                        ),
+                      ),
+                      addVerticalSpace(padding),
+                      const Padding(
+                        padding: sidePadding,
+                        child: Divider(
+                          height: 1,
+                          color: COLOR_GREY,
+                        ),
+                      ),
+                      // addVerticalSpace(10),
+                      Expanded(
+                        child: Padding(
+                          padding: sidePadding,
+                          child: ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            itemCount: _habitStacks.length,
+                            // scrollDirection: Axis.vertical,
+                            // shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              HabitStack habitStack = _habitStacks[index];
+                              return HabitStackOverviewItem(
+                                index: index,
+                                habitStack: habitStack,
+                                inOverview: _habitStacks.contains(habitStack),
+                                onStackOverviewChanged:
+                                    _handleStackOverviewChanged,
+                              );
+                            },
+                          ),
+                        ),
+                      )
+                    ]),
+              ),
             ),
             floatingActionButton: AddStackButton(
               onStackOverviewChanged: _handleStackOverviewChanged,
@@ -70,7 +113,9 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
           );
         } else {
           // Show loading during the async function finish to process
-          return const Scaffold(body: CircularProgressIndicator());
+          return Scaffold(
+              backgroundColor: Theme.of(context).primaryColor,
+              body: SafeArea(child: CircularProgressIndicator()));
         }
       },
     );

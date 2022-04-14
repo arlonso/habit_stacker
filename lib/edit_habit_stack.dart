@@ -189,26 +189,28 @@ class _HabitStackListState extends State<HabitStackList> {
                     ),
                   ],
                 ),
-                ReorderableListView.builder(
-                    onReorder: (oldIndex, newIndex) => {
-                          setState(
-                            () {
-                              _updateHabitStackListOrder(oldIndex, newIndex);
-                            },
-                          )
-                        },
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    itemCount: _habitStack.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      print("index builder ${index}");
-                      Habit habit = _habitStack[index];
-                      return HabitStackItem(
-                          index: index,
-                          habit: habit,
-                          inStack: _habitStack.contains(habit),
-                          onHabitStackChanged: _handleHabitStackChanged);
-                    }),
+                Expanded(
+                  child: ReorderableListView.builder(
+                      onReorder: (oldIndex, newIndex) => {
+                            setState(
+                              () {
+                                _updateHabitStackListOrder(oldIndex, newIndex);
+                              },
+                            )
+                          },
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      itemCount: _habitStack.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        print("index builder ${index}");
+                        Habit habit = _habitStack[index];
+                        return HabitStackItem(
+                            index: index,
+                            habit: habit,
+                            inStack: _habitStack.contains(habit),
+                            onHabitStackChanged: _handleHabitStackChanged);
+                      }),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[

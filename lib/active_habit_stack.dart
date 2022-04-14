@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:habit_stacker/Habit.dart';
-import 'habit_stack.dart';
+import 'package:habit_stacker/utils/custom_functions.dart';
+import 'package:habit_stacker/habit_stack.dart';
 
 class ActiveHabitStack extends StatefulWidget {
   const ActiveHabitStack({required this.habitStack, Key? key})
@@ -73,24 +74,6 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     _timer?.cancel();
     controller.dispose();
     super.dispose();
-  }
-
-  String _intToTimeLeft(int value) {
-    int m, s;
-
-    m = value ~/ 60;
-
-    s = value - (m * 60);
-
-    String minuteLeft =
-        m.toString().length < 2 ? "0" + m.toString() : m.toString();
-
-    String secondsLeft =
-        s.toString().length < 2 ? "0" + s.toString() : s.toString();
-
-    String result = "$minuteLeft:$secondsLeft";
-
-    return result;
   }
 
   void _moveToNextHabit() {
@@ -191,7 +174,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Text(
-                      _intToTimeLeft(_timerDuration),
+                      intToTimeLeft(_timerDuration),
                       style: Theme.of(context).textTheme.headline2,
                     ),
                     LinearProgressIndicator(

@@ -1,8 +1,24 @@
-import 'package:flutter/cupertino.dart';
-
-// import 'active_habit_stack.dart';
-import 'home.dart';
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'habit_stacks_overview.dart';
+import 'package:habit_stacker/utils/constants.dart';
 
 void main() {
-  runApp(const Home());
+  runApp(const Main());
+}
+
+class Main extends StatelessWidget {
+  const Main({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = window.physicalSize.width;
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          primaryColor: COLOR_DARK_BLUE_SHADE_DARK,
+          textTheme: screenWidth < 500 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT),
+      home: const HabitStackOverview(),
+    );
+  }
 }
