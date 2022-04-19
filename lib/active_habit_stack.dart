@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:habit_stacker/utils/constants.dart';
+import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:lottie/lottie.dart';
 import 'package:habit_stacker/Habit.dart';
 import 'package:habit_stacker/utils/custom_functions.dart';
@@ -84,6 +86,11 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
         _activeHabit = widget.habitStack.habits[index + 1];
       } else {
         _routineFinished = true;
+        if (_timer != null) {
+          _timer?.cancel();
+          controller.stop();
+          return;
+        }
       }
 
       final durationInSeconds = _activeHabit.duration * 60;
@@ -128,65 +135,81 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    const double padding = 20;
+    final ThemeData themeData = Theme.of(context);
     return MaterialApp(
         home: Scaffold(
-      appBar: AppBar(
-        title: const Text('Habit Stacker'),
-      ),
-      body: Center(
+      backgroundColor: themeData.primaryColor,
+      body: Container(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: _routineFinished
-                ? [
+          child: _routineFinished
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.cancel_outlined),
-                          onPressed: () => Navigator.pop(context),
+                        Text(
+                          "${widget.habitStack.name} \n finished!"
+                              .toUpperCase(),
+                          style: const TextStyle(
+                              color: COLOR_WHITE,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 40,
+                              height: 1.5),
+                          textAlign: TextAlign.center,
                         ),
-                        Center(
-                            child: Column(
-                          children: [
-                            Text(
-                              "${widget.habitStack.name} finished!"
-                                  .toUpperCase(),
-                              style: Theme.of(context).textTheme.headline4,
-                              textAlign: TextAlign.center,
-                            ),
-                            Lottie.asset(
-                              'assets/celebration.json',
-                              repeat: true,
-                            ),
-                          ],
-                        ))
+                        Lottie.asset(
+                          'assets/celebration.json',
+                          repeat: true,
+                        ),
                       ],
-                    )
-                  ]
-                : [
+                    ),
+                    Positioned(
+                      top: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.cancel_outlined),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Text(
                       _activeHabit.name.toUpperCase(),
-                      style: Theme.of(context).textTheme.headline4,
+                      style: const TextStyle(
+                          color: COLOR_WHITE,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 40),
                     ),
+                    addVerticalSpace(padding),
                     Text(
                       _activeHabit.desc,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    Text(
-                      intToTimeLeft(_timerDuration),
-                      style: Theme.of(context).textTheme.headline2,
-                    ),
+                    Text(intToTimeLeft(_timerDuration),
+                        style: const TextStyle(
+                            color: COLOR_WHITE,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 60)),
+                    addVerticalSpace(padding * 2),
                     LinearProgressIndicator(
+                      color: COLOR_GREY,
+                      backgroundColor: COLOR_DARK_BLUE_SHADE_LIGHT,
                       value: controller.value,
                       semanticsLabel: 'Linear progress indicator',
                     ),
+                    addVerticalSpace(padding * 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         CircleAvatar(
                           radius: 30,
-                          backgroundColor: Color.fromARGB(255, 142, 132, 231),
+                          backgroundColor: COLOR_ACCENT,
                           child: IconButton(
                             iconSize: 30,
                             color: Colors.white,
@@ -196,7 +219,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                         ),
                         CircleAvatar(
                           radius: 30,
-                          backgroundColor: Color.fromARGB(255, 142, 132, 231),
+                          backgroundColor: COLOR_ACCENT,
                           child: IconButton(
                             iconSize: 30,
                             color: Colors.white,
@@ -207,7 +230,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                         ),
                         CircleAvatar(
                           radius: 30,
-                          backgroundColor: Color.fromARGB(255, 142, 132, 231),
+                          backgroundColor: COLOR_ACCENT,
                           child: IconButton(
                             iconSize: 30,
                             color: Colors.white,
@@ -218,7 +241,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                       ],
                     )
                   ],
-          ),
+                ),
         ),
       ),
     ));

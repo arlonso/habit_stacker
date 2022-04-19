@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const COLOR_BLACK = Color.fromRGBO(48, 47, 48, 1.0);
-const COLOR_GREY = Color.fromRGBO(141, 141, 141, 1.0);
+const COLOR_GREY = Color(0xFF5C6378);
 const COLOR_WINE_RED = Color.fromRGBO(40, 11, 17, 1.0);
 const COLOR_WINE_RED_LIGHT = Color.fromRGBO(79, 23, 34, 1.0);
-const COLOR_WHITE = Colors.white;
-const COLOR_DARK_BLUE = Color.fromRGBO(11, 19, 27, 1.0);
+const COLOR_WHITE = Color(0xFFEDF2F4);
+const COLOR_ACCENT = Color(0xFF63bd49);
+const COLOR_DARK_BLUE = Color(0xFF2b2d42);
 const COLOR_DARK_BLUE_SHADE_DARK = Color.fromRGBO(17, 30, 45, 1.0);
 const COLOR_DARK_BLUE_SHADE_LIGHT = Color.fromRGBO(44, 55, 78, 1.0);
 

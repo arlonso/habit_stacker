@@ -49,6 +49,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
     final ThemeData themeData = Theme.of(context);
     const double padding = 25;
     const sidePadding = EdgeInsets.symmetric(horizontal: padding);
+    const verticalPadding = EdgeInsets.symmetric(vertical: padding);
     return FutureBuilder(
       // Waiting your async function to finish
       future: future,
@@ -58,7 +59,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
           // To access the function data when is done
           // you can take it from **snapshot.data**
           return Scaffold(
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor: themeData.primaryColor,
             body: SafeArea(
               child: Container(
                 width: size.width,
@@ -66,7 +67,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      addVerticalSpace(padding),
+                      addVerticalSpace(padding * 2),
                       Padding(
                         padding: sidePadding,
                         child: Text(
@@ -87,6 +88,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
                         child: Padding(
                           padding: sidePadding,
                           child: ListView.builder(
+                            shrinkWrap: true,
                             physics: BouncingScrollPhysics(),
                             itemCount: _habitStacks.length,
                             // scrollDirection: Axis.vertical,
