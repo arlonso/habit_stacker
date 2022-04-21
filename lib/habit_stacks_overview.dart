@@ -89,7 +89,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
                           padding: sidePadding,
                           child: ListView.builder(
                             shrinkWrap: true,
-                            physics: BouncingScrollPhysics(),
+                            physics: const BouncingScrollPhysics(),
                             itemCount: _habitStacks.length,
                             // scrollDirection: Axis.vertical,
                             // shrinkWrap: true,
@@ -117,7 +117,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
           // Show loading during the async function finish to process
           return Scaffold(
               backgroundColor: Theme.of(context).primaryColor,
-              body: SafeArea(child: CircularProgressIndicator()));
+              body: const SafeArea(child: CircularProgressIndicator()));
         }
       },
     );
@@ -150,13 +150,21 @@ class AddStackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      child: Icon(Icons.add),
+      child: const Icon(Icons.add),
       onPressed: () {
         showModalBottomSheet<void>(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topRight: Radius.circular(25), topLeft: Radius.circular(25)),
+          ),
+          backgroundColor: Theme.of(context).primaryColor,
           isScrollControlled: true,
           context: context,
           builder: (BuildContext context) {
-            return HabitStackList(onStackOverviewChanged, null);
+            return FractionallySizedBox(
+              heightFactor: 0.95,
+              child: HabitStackList(onStackOverviewChanged, null),
+            );
           },
         );
       },

@@ -161,6 +161,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                               height: 1.5),
                           textAlign: TextAlign.center,
                         ),
+                        addVerticalSpace(padding),
                         Lottie.asset(
                           'assets/celebration.json',
                           repeat: true,
@@ -169,8 +170,12 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                     ),
                     Positioned(
                       top: 0,
+                      right: 10,
                       child: IconButton(
-                        icon: const Icon(Icons.cancel_outlined),
+                        icon: const Icon(
+                          Icons.cancel_outlined,
+                          size: 32,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),

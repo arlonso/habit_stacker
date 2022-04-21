@@ -90,14 +90,14 @@ class _NewHabitState extends State<NewHabit> {
     return SafeArea(
         child: Container(
       height: MediaQuery.of(context).size.height,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: const InputDecoration(
+              border: const OutlineInputBorder(),
               hintText: 'Enter a stack name',
             ),
             controller: newHabitNameController,
@@ -118,8 +118,8 @@ class _NewHabitState extends State<NewHabit> {
           TextField(
             keyboardType: TextInputType.multiline,
             maxLines: null,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
+            decoration: const InputDecoration(
+              border: const OutlineInputBorder(),
               hintText: 'Enter a description',
             ),
             controller: newHabitDescController,
@@ -135,7 +135,7 @@ class _NewHabitState extends State<NewHabit> {
                   ),
                   child: const Text('Save'),
                   onPressed: () => _saveHabit()),
-              SizedBox(width: 30),
+              const SizedBox(width: 30),
               ElevatedButton(
                 child: const Text('Cancel'),
                 onPressed: () => Navigator.pop(context),

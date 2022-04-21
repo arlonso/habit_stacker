@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:habit_stacker/active_habit_stack.dart';
+import 'package:habit_stacker/utils/constants.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +25,7 @@ class HabitStackList extends StatefulWidget {
 }
 
 class _HabitStackListState extends State<HabitStackList> {
+  final ScrollController _scrollController = ScrollController();
   bool _isSaveButtonDisabled = true;
   bool _isInOverview = false;
 
@@ -142,40 +148,169 @@ class _HabitStackListState extends State<HabitStackList> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Container(
-            // height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextField(
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData themeData = Theme.of(context);
+    const double padding = 25;
+    return Stack(alignment: Alignment.topCenter, children: [
+      SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 30),
+        clipBehavior: Clip.hardEdge,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                const Image(
+                  height: 200,
+                  image: const AssetImage("assets/images/morning.jpg"),
+                  fit: BoxFit.cover,
+                ),
+                Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: padding, vertical: 15),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height: size.width * 0.13,
+                            width: size.width * 0.13,
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    spreadRadius: 0,
+                                    blurRadius: 13,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                                shape: BoxShape.rectangle,
+                                color: COLOR_GREY,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back_outlined,
+                                  color: Colors.white,
+                                  size: 25,
+                                ),
+                                onPressed: () => {Navigator.pop(context)}),
+                          ),
+                          widget.habitStack != null
+                              ? Container(
+                                  height: size.width * 0.13,
+                                  width: size.width * 0.13,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          spreadRadius: 0,
+                                          blurRadius: 13,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                      shape: BoxShape.rectangle,
+                                      color: COLOR_GREY,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: IconButton(
+                                      icon: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 25,
+                                      ),
+                                      onPressed: () => {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ActiveHabitStack(
+                                                            habitStack: widget
+                                                                .habitStack!))
+                                                // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
+                                                ),
+                                          }),
+                                )
+                              : const SizedBox.shrink()
+                        ])),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(children: [
+                Expanded(
+                    child: TextField(
                   controller: newHabitStackNameController,
+                  style: themeData.textTheme.headline2,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                    hintStyle: TextStyle(color: COLOR_GREY),
+                    border: InputBorder.none,
                     hintText: 'Enter a stack name',
                   ),
-                ),
-                TextField(
+                )),
+                Container(
+                    height: size.width * 0.1,
+                    // width: size.width * 0.1,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      color: COLOR_DARK_BLUE,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Text(
+                        "12:00",
+                        style: GoogleFonts.roboto(
+                            fontWeight: FontWeight.w700,
+                            color: COLOR_WHITE,
+                            fontSize: 24,
+                            height: 1.2),
+                      ),
+                    ))
+              ]),
+            ),
+            const Divider(
+              height: 5,
+              color: COLOR_GREY,
+            ),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: TextField(
                   controller: newHabitStackDescController,
+                  style: themeData.textTheme.headline4,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                    hintStyle: TextStyle(color: COLOR_GREY),
+                    border: InputBorder.none,
                     hintText: 'Enter a stack description',
                   ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Text('${_habitStack.length} Habits'),
-                    Text('${_duration.toString()} min'),
-                    Spacer(),
-                    Container(
-                      height: 30.0,
-                      width: 30.0,
-                      child: FittedBox(
-                          child: FloatingActionButton(
-                        child: Icon(Icons.add, size: 35),
-                        onPressed: () {
+                )),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                  '${_habitStack.length} Habits | ${_duration.toString()} min'),
+            ),
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Expanded(
+                    child: ReorderableGridView.count(
+                  shrinkWrap: true,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 4,
+                  children: _habitStack
+                      .mapIndexed<Widget>((i, habit) => HabitStackItem(
+                          index: i,
+                          habit: habit,
+                          inStack: _habitStack.contains(habit),
+                          onHabitStackChanged: _handleHabitStackChanged))
+                      .toList(),
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      _updateHabitStackListOrder(oldIndex, newIndex);
+                    });
+                  },
+                  footer: [
+                    Card(
+                      child: InkWell(
+                        onTap: () {
                           showModalBottomSheet<void>(
                             // radius: 25.0,
                             // isScrollControlled: true,
@@ -185,51 +320,54 @@ class _HabitStackListState extends State<HabitStackList> {
                             },
                           );
                         },
-                      )),
+                        child: Container(
+                          child: Center(child: Icon(Icons.add)),
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                Expanded(
-                  child: ReorderableListView.builder(
-                      onReorder: (oldIndex, newIndex) => {
-                            setState(
-                              () {
-                                _updateHabitStackListOrder(oldIndex, newIndex);
-                              },
-                            )
-                          },
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      itemCount: _habitStack.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        print("index builder ${index}");
-                        Habit habit = _habitStack[index];
-                        return HabitStackItem(
-                            index: index,
-                            habit: habit,
-                            inStack: _habitStack.contains(habit),
-                            onHabitStackChanged: _handleHabitStackChanged);
-                      }),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: _isSaveButtonDisabled
-                              ? MaterialStateProperty.all(Colors.blue[100])
-                              : MaterialStateProperty.all(Colors.blue),
-                        ),
-                        child: const Text('Save'),
-                        onPressed: () => _saveHabitStack()),
-                    SizedBox(width: 30),
-                    ElevatedButton(
-                      child: const Text('Cancel'),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
-                ),
-              ],
-            )));
+                ))),
+            // child: ReorderableListView.builder(
+            //     onReorder: (oldIndex, newIndex) => {
+            //           setState(
+            //             () {
+            //               _updateHabitStackListOrder(oldIndex, newIndex);
+            //             },
+            //           )
+            //         },
+            //     shrinkWrap: true,
+            //     padding: const EdgeInsets.symmetric(vertical: 8.0),
+            //     itemCount: _habitStack.length,
+            //     itemBuilder: (BuildContext context, int index) {
+            //       print("index builder ${index}");
+            //       Habit habit = _habitStack[index];
+            //       return HabitStackItem(
+            //           index: index,
+            //           habit: habit,
+            //           inStack: _habitStack.contains(habit),
+            //           onHabitStackChanged: _handleHabitStackChanged);
+            //     }),
+            // ),
+          ],
+        ),
+      ),
+      Positioned(
+        bottom: 10,
+        child: ElevatedButton(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: padding)),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18.0),
+              )),
+              backgroundColor: _isSaveButtonDisabled
+                  ? MaterialStateProperty.all(Colors.blue[100])
+                  : MaterialStateProperty.all(Colors.blue),
+            ),
+            child: const Text('Save'),
+            onPressed: () => _saveHabitStack()),
+      )
+    ]);
   }
 }
