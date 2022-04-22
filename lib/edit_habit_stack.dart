@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_stacker/active_habit_stack.dart';
 import 'package:habit_stacker/utils/constants.dart';
+import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class _HabitStackListState extends State<HabitStackList> {
   // String _HabitStackItemDesc = "";
   int _duration = 0;
   List<Habit> _habitStack = [];
+  TimeOfDay selectedTime = TimeOfDay.now();
 
   late TextEditingController newHabitStackNameController;
   late TextEditingController newHabitStackDescController;
@@ -103,6 +105,19 @@ class _HabitStackListState extends State<HabitStackList> {
     } else {
       setState(() {
         _isSaveButtonDisabled = false;
+      });
+    }
+  }
+
+  _selectTime(BuildContext context) async {
+    final TimeOfDay? timeOfDay = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+      initialEntryMode: TimePickerEntryMode.dial,
+    );
+    if (timeOfDay != null && timeOfDay != selectedTime) {
+      setState(() {
+        selectedTime = timeOfDay;
       });
     }
   }
@@ -248,23 +263,26 @@ class _HabitStackListState extends State<HabitStackList> {
                   ),
                 )),
                 Container(
-                    height: size.width * 0.1,
-                    // width: size.width * 0.1,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: COLOR_DARK_BLUE,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Text(
-                        "12:00",
-                        style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w700,
-                            color: COLOR_WHITE,
-                            fontSize: 24,
-                            height: 1.2),
-                      ),
-                    ))
+                  height: size.width * 0.1,
+                  // width: size.width * 0.1,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: COLOR_DARK_BLUE,
+                  ),
+                  child: InkWell(
+                      onTap: () => _selectTime(context),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Text(
+                          "${selectedTime.hour}:${selectedTime.minute}",
+                          style: GoogleFonts.roboto(
+                              fontWeight: FontWeight.w700,
+                              color: COLOR_GREY,
+                              fontSize: 24,
+                              height: 1.2),
+                        ),
+                      )),
+                ),
               ]),
             ),
             const Divider(
@@ -312,11 +330,18 @@ class _HabitStackListState extends State<HabitStackList> {
                       child: InkWell(
                         onTap: () {
                           showModalBottomSheet<void>(
-                            // radius: 25.0,
-                            // isScrollControlled: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(25),
+                                  topLeft: Radius.circular(25)),
+                            ),
+                            backgroundColor: Theme.of(context).primaryColor,
+                            isScrollControlled: true,
                             context: context,
                             builder: (BuildContext context) {
-                              return NewHabit(_handleHabitStackChanged);
+                              return FractionallySizedBox(
+                                  heightFactor: 0.8,
+                                  child: NewHabit(_handleHabitStackChanged));
                             },
                           );
                         },

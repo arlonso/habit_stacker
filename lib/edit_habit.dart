@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:habit_stacker/utils/constants.dart';
+import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 import 'Habit.dart';
 import 'habit_stack_changed_callback.dart';
@@ -24,6 +27,7 @@ class _NewHabitState extends State<NewHabit> {
   // String _HabitStackItemDesc = "";
   int _duration = 5;
   int _oldDuration = 0;
+  Icon? _icon;
 
   @override
   void initState() {
@@ -58,6 +62,20 @@ class _NewHabitState extends State<NewHabit> {
     super.dispose();
   }
 
+  _pickIcon() async {
+    IconData? icon = await FlutterIconPicker.showIconPicker(context,
+        iconPackModes: [IconPack.cupertino]);
+
+    _icon = Icon(
+      icon,
+      color: COLOR_WHITE,
+      size: 52,
+    );
+    setState(() {});
+
+    debugPrint('Picked Icon:  $icon');
+  }
+
   void _checkSaveButtonStatus() {
     if (newHabitNameController.text != "") {
       setState(() {
@@ -87,21 +105,51 @@ class _NewHabitState extends State<NewHabit> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData themeData = Theme.of(context);
+    const double padding = 25;
     return SafeArea(
         child: Container(
       height: MediaQuery.of(context).size.height,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.only(top: 100, left: 20, right: 20, bottom: 20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          InkWell(
+              onTap: _pickIcon,
+              child: Container(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: COLOR_WHITE, width: 2)),
+                child: Padding(
+                    padding: const EdgeInsets.all(17),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _icon ??
+                          const Icon(
+                            Icons.task,
+                            color: COLOR_WHITE,
+                            size: 54,
+                          ),
+                    )),
+              )),
+          addVerticalSpace(padding),
           TextField(
+            textAlign: TextAlign.center,
+            controller: newHabitNameController,
+            style: themeData.textTheme.headline2,
             decoration: const InputDecoration(
-              border: const OutlineInputBorder(),
+              suffixIcon: Icon(
+                Icons.edit,
+                color: COLOR_GREY,
+              ),
+              hintStyle: TextStyle(color: COLOR_GREY),
+              border: InputBorder.none,
               hintText: 'Enter a stack name',
             ),
-            controller: newHabitNameController,
           ),
+          addVerticalSpace(padding),
           Column(
             children: <Widget>[
               NumberPicker(
@@ -115,14 +163,22 @@ class _NewHabitState extends State<NewHabit> {
               Text('Duration: $_duration m'),
             ],
           ),
+          addVerticalSpace(padding),
           TextField(
+            textAlign: TextAlign.center,
+            controller: newHabitDescController,
+            style: themeData.textTheme.headline4,
             keyboardType: TextInputType.multiline,
             maxLines: null,
             decoration: const InputDecoration(
-              border: const OutlineInputBorder(),
+              suffixIcon: Icon(
+                Icons.edit,
+                color: COLOR_GREY,
+              ),
+              hintStyle: TextStyle(color: COLOR_GREY),
+              border: InputBorder.none,
               hintText: 'Enter a description',
             ),
-            controller: newHabitDescController,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

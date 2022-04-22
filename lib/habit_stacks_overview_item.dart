@@ -5,7 +5,6 @@ import 'package:habit_stacker/edit_habit_stack.dart';
 import 'package:habit_stacker/utils/constants.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
 
-import 'custom/border_icon.dart';
 import 'habit_stack.dart';
 import 'stack_overview_changed_callback.dart';
 
@@ -178,7 +177,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return FractionallySizedBox(
-                          heightFactor: 0.95,
+                          heightFactor: 0.8,
                           child: HabitStackList(
                               onStackOverviewChanged, habitStack),
                         );

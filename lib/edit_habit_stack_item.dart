@@ -22,27 +22,62 @@ class HabitStackItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flexible(
-        child: Card(
-            color: COLOR_GREY,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 5),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    const Icon(
-                      Icons.ac_unit_outlined,
-                      size: 40,
-                      color: COLOR_WHITE,
+        child: Stack(alignment: Alignment.center, children: [
+      Card(
+          color: COLOR_GREY,
+          child: InkWell(
+              onTap: () {
+                showModalBottomSheet<void>(
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(25),
+                          topLeft: Radius.circular(25)),
                     ),
-                    const Spacer(),
-                    Text(
-                      habit.name,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
-                  ]),
-            )));
+                    backgroundColor: Theme.of(context).primaryColor,
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return FractionallySizedBox(
+                          heightFactor: 0.95,
+                          child: NewHabit(
+                            onHabitStackChanged,
+                            habit: habit,
+                          ));
+                    });
+              },
+              child: Container(
+                  width: 150,
+                  height: 150,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(),
+                          const Icon(
+                            Icons.ac_unit_outlined,
+                            size: 40,
+                            color: COLOR_WHITE,
+                          ),
+                          const Spacer(),
+                          Text(
+                            habit.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ]),
+                  )))),
+      Positioned(
+          left: 51,
+          bottom: 50,
+          child: IconButton(
+            icon: Icon(Icons.remove_circle),
+            onPressed: () =>
+                onHabitStackChanged(habit, habit.duration, inStack, true),
+            color: COLOR_WHITE,
+            iconSize: 25,
+          ))
+    ]));
     // return Slidable(
     //     // The end action pane is the one at the right or the bottom side.
     //     endActionPane: ActionPane(
