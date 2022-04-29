@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
-
-import 'Habit.dart';
 import 'habit_stack_changed_callback.dart';
 
 class NewHabit extends StatefulWidget {
@@ -40,6 +39,12 @@ class _NewHabitState extends State<NewHabit> {
             TextEditingController(text: widget.habit!.desc);
         _duration = widget.habit!.duration;
         _oldDuration = widget.habit!.duration;
+        _icon = Icon(
+          IconData(widget.habit!.iconCode!,
+              fontFamily: widget.habit!.fontFamily),
+          color: COLOR_WHITE,
+          size: 52,
+        );
         _isSaveButtonDisabled = false;
         _inStack = true;
       } else {
@@ -71,13 +76,13 @@ class _NewHabitState extends State<NewHabit> {
         ]);
 
     _icon = Icon(
-      icon,
+      icon ?? Icons.task,
       color: COLOR_WHITE,
       size: 52,
     );
     setState(() {});
 
-    debugPrint('Picked Icon:  $icon');
+    debugPrint('Picked Icon:  ${icon.toString()}');
   }
 
   void _checkSaveButtonStatus() {
@@ -98,10 +103,19 @@ class _NewHabitState extends State<NewHabit> {
       widget.habit!.name = newHabitNameController.text;
       widget.habit!.duration = _duration;
       widget.habit!.desc = newHabitDescController.text;
+      widget.habit!.iconCode = _icon!.icon!.codePoint;
       finalHabit = widget.habit!;
     } else {
       finalHabit = Habit(
-          newHabitNameController.text, _duration, newHabitDescController.text);
+        newHabitNameController.text,
+        _duration,
+        newHabitDescController.text,
+      );
+
+      if (_icon != null) {
+        finalHabit.iconCode = _icon!.icon!.codePoint;
+        finalHabit.fontFamily = _icon!.icon!.fontFamily;
+      }
     }
     widget.onHabitStackChanged(finalHabit, _oldDuration, _inStack, false);
     Navigator.pop(context);
@@ -134,7 +148,7 @@ class _NewHabitState extends State<NewHabit> {
                           const Icon(
                             Icons.task,
                             color: COLOR_WHITE,
-                            size: 54,
+                            size: 52,
                           ),
                     )),
               )),

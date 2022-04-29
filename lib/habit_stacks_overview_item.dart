@@ -177,7 +177,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return FractionallySizedBox(
-                          heightFactor: 0.8,
+                          heightFactor: 0.95,
                           child: HabitStackList(
                               onStackOverviewChanged, habitStack),
                         );

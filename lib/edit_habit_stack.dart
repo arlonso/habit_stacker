@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_stacker/active_habit_stack.dart';
+import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
-import 'Habit.dart';
 import 'habit_stack.dart';
 import 'edit_habit_stack_item.dart';
 import 'edit_habit.dart';
@@ -174,7 +174,8 @@ class _HabitStackListState extends State<HabitStackList> {
     final Size size = MediaQuery.of(context).size;
     final ThemeData themeData = Theme.of(context);
     const double padding = 25;
-    return Stack(alignment: Alignment.topCenter, children: [
+    return Container(
+        child: Stack(alignment: Alignment.topCenter, children: [
       SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 30),
         clipBehavior: Clip.hardEdge,
@@ -308,15 +309,24 @@ class _HabitStackListState extends State<HabitStackList> {
                     hintText: 'Enter a stack description',
                   ),
                 )),
+            const Divider(
+              height: 5,
+              color: COLOR_GREY,
+            ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.only(top: 5, bottom: 8),
               child: Text(
-                  '${_habitStack.length} Habits | ${_duration.toString()} min'),
+                '${_habitStack.length} Habits | ${_duration.toString()} min',
+                style: GoogleFonts.roboto(
+                  fontWeight: FontWeight.w500,
+                  color: COLOR_GREY,
+                  fontSize: 18,
+                ),
+              ),
             ),
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Expanded(
-                    child: ReorderableGridView.count(
+                child: ReorderableGridView.count(
                   shrinkWrap: true,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
@@ -359,28 +369,7 @@ class _HabitStackListState extends State<HabitStackList> {
                       ),
                     ),
                   ],
-                ))),
-            // child: ReorderableListView.builder(
-            //     onReorder: (oldIndex, newIndex) => {
-            //           setState(
-            //             () {
-            //               _updateHabitStackListOrder(oldIndex, newIndex);
-            //             },
-            //           )
-            //         },
-            //     shrinkWrap: true,
-            //     padding: const EdgeInsets.symmetric(vertical: 8.0),
-            //     itemCount: _habitStack.length,
-            //     itemBuilder: (BuildContext context, int index) {
-            //       print("index builder ${index}");
-            //       Habit habit = _habitStack[index];
-            //       return HabitStackItem(
-            //           index: index,
-            //           habit: habit,
-            //           inStack: _habitStack.contains(habit),
-            //           onHabitStackChanged: _handleHabitStackChanged);
-            //     }),
-            // ),
+                )),
           ],
         ),
       ),
@@ -401,6 +390,6 @@ class _HabitStackListState extends State<HabitStackList> {
             child: const Text('Save'),
             onPressed: () => _saveHabitStack()),
       )
-    ]);
+    ]));
   }
 }

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:lottie/lottie.dart';
-import 'package:habit_stacker/Habit.dart';
 import 'package:habit_stacker/utils/custom_functions.dart';
 import 'package:habit_stacker/habit_stack.dart';
 

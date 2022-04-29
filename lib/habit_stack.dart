@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
-import 'Habit.dart';
+import 'package:habit_stacker/habit.dart';
 
 class HabitStack {
   List<Habit> habits;

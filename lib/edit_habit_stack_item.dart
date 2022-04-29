@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
 
-import 'Habit.dart';
 import 'edit_habit.dart';
 import 'habit_stack_changed_callback.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -21,8 +21,7 @@ class HabitStackItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-        child: Stack(alignment: Alignment.center, children: [
+    return Stack(alignment: Alignment.center, children: [
       Card(
           color: COLOR_GREY,
           child: InkWell(
@@ -54,8 +53,14 @@ class HabitStackItem extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Spacer(),
-                          const Icon(
-                            Icons.ac_unit_outlined,
+                          Icon(
+                            IconData(
+                                habit.iconCode != null
+                                    ? habit.iconCode!
+                                    : 0xe645,
+                                fontFamily: habit.fontFamily != null
+                                    ? habit.fontFamily
+                                    : "MaterialIcons"),
                             size: 40,
                             color: COLOR_WHITE,
                           ),
@@ -68,7 +73,7 @@ class HabitStackItem extends StatelessWidget {
                         ]),
                   )))),
       Positioned(
-          left: 51,
+          left: 50,
           bottom: 50,
           child: IconButton(
             icon: Icon(Icons.remove_circle),
@@ -77,7 +82,7 @@ class HabitStackItem extends StatelessWidget {
             color: COLOR_WHITE,
             iconSize: 25,
           ))
-    ]));
+    ]);
     // return Slidable(
     //     // The end action pane is the one at the right or the bottom side.
     //     endActionPane: ActionPane(
