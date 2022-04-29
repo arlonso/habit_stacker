@@ -116,7 +116,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: Text(
-                                      "12:00",
+                                      "${habitStack.time[0]}:${habitStack.time[1] < 10 ? "0" + habitStack.time[1].toString() : habitStack.time[1]}",
                                       style: GoogleFonts.roboto(
                                           fontWeight: FontWeight.w700,
                                           color: COLOR_GREY,
@@ -261,7 +261,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                                     ),
                                     addHorizontalSpace(5),
                                     Text(
-                                      "12:00 am",
+                                      "${habitStack.time[0]}:${habitStack.time[1] < 10 ? "0" + habitStack.time[1].toString() : habitStack.time[1]}",
                                       style: GoogleFonts.roboto(
                                         fontWeight: FontWeight.w700,
                                         color: const Color(0xFF8C8C8C),

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 String intToTimeLeft(int value) {
   int m, s;
 
@@ -15,3 +17,5 @@ String intToTimeLeft(int value) {
 
   return result;
 }
+
+double toDouble(List<int> myTime) => myTime[0] + myTime[1] / 60.0;

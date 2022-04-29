@@ -64,7 +64,11 @@ class _NewHabitState extends State<NewHabit> {
 
   _pickIcon() async {
     IconData? icon = await FlutterIconPicker.showIconPicker(context,
-        iconPackModes: [IconPack.cupertino]);
+        iconPackModes: [
+          IconPack.fontAwesomeIcons,
+          IconPack.lineAwesomeIcons,
+          IconPack.material
+        ]);
 
     _icon = Icon(
       icon,

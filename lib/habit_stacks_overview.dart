@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:habit_stacker/custom/border_icon.dart';
 import 'package:habit_stacker/utils/constants.dart';
+import 'package:habit_stacker/utils/custom_functions.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +43,21 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
     print("habit Stacks: $_habitStacks");
   }
 
+  void orderHabitStacksByTime() {
+    for (int i = 1; i < _habitStacks.length; i++) {
+      HabitStack stackToSort = _habitStacks[i];
+
+      // Move stack to the left until it's at the right position
+      int j = i;
+      while (j > 0 &&
+          toDouble(stackToSort.time) < toDouble(_habitStacks[j - 1].time)) {
+        _habitStacks[j] = _habitStacks[j - 1];
+        j--;
+      }
+      _habitStacks[j] = stackToSort;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -58,6 +73,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
         if (snapshot.connectionState == ConnectionState.done) {
           // To access the function data when is done
           // you can take it from **snapshot.data**
+
           return Scaffold(
             backgroundColor: themeData.primaryColor,
             body: SafeArea(
@@ -94,6 +110,7 @@ class _HabitStackOverviewState extends State<HabitStackOverview> {
                             // scrollDirection: Axis.vertical,
                             // shrinkWrap: true,
                             itemBuilder: (context, index) {
+                              orderHabitStacksByTime();
                               HabitStack habitStack = _habitStacks[index];
                               return HabitStackOverviewItem(
                                 index: index,

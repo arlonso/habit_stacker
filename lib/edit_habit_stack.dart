@@ -34,7 +34,8 @@ class _HabitStackListState extends State<HabitStackList> {
   // String _HabitStackItemDesc = "";
   int _duration = 0;
   List<Habit> _habitStack = [];
-  TimeOfDay selectedTime = TimeOfDay.now();
+  List<int> _habitStackTime = [];
+  TimeOfDay _selectedTime = TimeOfDay.now();
 
   late TextEditingController newHabitStackNameController;
   late TextEditingController newHabitStackDescController;
@@ -47,6 +48,11 @@ class _HabitStackListState extends State<HabitStackList> {
         _habitStack = widget.habitStack!.habits;
         // initialize duration
         _duration = widget.habitStack!.duration;
+        //initialize time
+        _selectedTime = TimeOfDay(
+            hour: widget.habitStack!.time[0],
+            minute: widget.habitStack!.time[1]);
+        _habitStackTime = widget.habitStack!.time;
         newHabitStackNameController =
             TextEditingController(text: widget.habitStack!.name);
         newHabitStackDescController = newHabitStackDescController =
@@ -112,12 +118,12 @@ class _HabitStackListState extends State<HabitStackList> {
   _selectTime(BuildContext context) async {
     final TimeOfDay? timeOfDay = await showTimePicker(
       context: context,
-      initialTime: selectedTime,
+      initialTime: _selectedTime,
       initialEntryMode: TimePickerEntryMode.dial,
     );
-    if (timeOfDay != null && timeOfDay != selectedTime) {
+    if (timeOfDay != null && timeOfDay != _selectedTime) {
       setState(() {
-        selectedTime = timeOfDay;
+        _selectedTime = timeOfDay;
       });
     }
   }
@@ -133,11 +139,13 @@ class _HabitStackListState extends State<HabitStackList> {
       widget.habitStack!.name = newHabitStackNameController.text;
       widget.habitStack!.desc = newHabitStackDescController.text;
       widget.habitStack!.duration = _duration;
+      widget.habitStack!.time = [_selectedTime.hour, _selectedTime.minute];
       finalHabitStack = widget.habitStack!;
     } else {
       String name = newHabitStackNameController.text;
       String desc = newHabitStackDescController.text;
-      finalHabitStack = HabitStack(_habitStack, name, _duration, desc);
+      finalHabitStack = HabitStack(_habitStack, name, _duration,
+          [_selectedTime.hour, _selectedTime.minute], desc);
     }
     //trigger callback function to update the state
     widget.onStackOverviewChanged(finalHabitStack, _isInOverview, false);
@@ -274,7 +282,7 @@ class _HabitStackListState extends State<HabitStackList> {
                       child: Padding(
                         padding: const EdgeInsets.all(5),
                         child: Text(
-                          "${selectedTime.hour}:${selectedTime.minute}",
+                          "${_selectedTime.hour}:${_selectedTime.minute < 10 ? "0" + _selectedTime.minute.toString() : _selectedTime.minute}",
                           style: GoogleFonts.roboto(
                               fontWeight: FontWeight.w700,
                               color: COLOR_GREY,
