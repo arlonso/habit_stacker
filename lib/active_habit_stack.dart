@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
@@ -33,6 +36,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   late int _timerDuration;
   late Habit _activeHabit;
   late AnimationController controller;
+  late final Future<LottieComposition> _composition;
 
   void _startTimer() {
     setState(
@@ -66,6 +70,8 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
         setState(() {});
       });
     controller.reverse(from: (_timerDuration.toDouble()));
+
+    _composition = _loadComposition();
 
     //initialize timer
     super.initState();
@@ -133,6 +139,11 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     }
   }
 
+  Future<LottieComposition> _loadComposition() async {
+    var assetData = await rootBundle.load('assets/celebration.json');
+    return await LottieComposition.fromByteData(assetData);
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -148,35 +159,60 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
               ? Stack(
                   alignment: Alignment.center,
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${widget.habitStack.name} \n finished!"
-                              .toUpperCase(),
-                          style: const TextStyle(
-                              color: COLOR_WHITE,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 40,
-                              height: 1.5),
-                          textAlign: TextAlign.center,
-                        ),
-                        addVerticalSpace(padding),
-                        Lottie.asset(
-                          'assets/celebration.json',
-                          repeat: true,
-                        ),
-                      ],
+                    FutureBuilder<LottieComposition>(
+                      future: _composition,
+                      builder: (context, snapshot) {
+                        var composition = snapshot.data;
+                        if (composition != null) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Routine \n finished!".toUpperCase(),
+                                style: GoogleFonts.robotoCondensed(
+                                  color: COLOR_WHITE,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 55,
+                                  height: 1.3,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              addVerticalSpace(padding),
+                              Lottie(
+                                composition: composition,
+                                repeat: true,
+                              )
+                            ],
+                          );
+                        }
+                        return SizedBox.shrink();
+                      },
                     ),
                     Positioned(
                       top: 0,
                       right: 10,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.cancel_outlined,
-                          size: 32,
-                        ),
-                        onPressed: () => Navigator.pop(context),
+                      child: Container(
+                        height: size.width * 0.13,
+                        width: size.width * 0.13,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                spreadRadius: 0,
+                                blurRadius: 13,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            shape: BoxShape.rectangle,
+                            color: COLOR_GREY,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: IconButton(
+                            icon: const Icon(
+                              FontAwesomeIcons.xmark,
+                              color: Colors.white,
+                              size: 25,
+                            ),
+                            onPressed: () => {Navigator.pop(context)}),
                       ),
                     ),
                   ],

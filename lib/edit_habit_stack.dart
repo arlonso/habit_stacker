@@ -188,7 +188,7 @@ class _HabitStackListState extends State<HabitStackList> {
               children: [
                 const Image(
                   height: 200,
-                  image: const AssetImage("assets/images/morning.jpg"),
+                  image: AssetImage("assets/images/mid-day.jpg"),
                   fit: BoxFit.cover,
                 ),
                 Padding(

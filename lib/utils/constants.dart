@@ -11,6 +11,10 @@ const COLOR_DARK_BLUE = Color(0xFF2b2d42);
 const COLOR_DARK_BLUE_SHADE_DARK = Color.fromRGBO(17, 30, 45, 1.0);
 const COLOR_DARK_BLUE_SHADE_LIGHT = Color.fromRGBO(44, 55, 78, 1.0);
 
+// const backgroundImages = {
+//   0:
+// }
+
 const TextTheme TEXT_THEME_DEFAULT = TextTheme(
     headline1: TextStyle(
         color: COLOR_WHITE, fontWeight: FontWeight.w700, fontSize: 26),

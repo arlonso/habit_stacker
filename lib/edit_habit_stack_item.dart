@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
+import 'package:habit_stacker/utils/widget_functions.dart';
 
 import 'edit_habit.dart';
 import 'habit_stack_changed_callback.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HabitStackItem extends StatelessWidget {
   HabitStackItem({
@@ -54,22 +58,23 @@ class HabitStackItem extends StatelessWidget {
                         children: [
                           const Spacer(),
                           Icon(
-                            IconData(
-                                habit.iconCode != null
-                                    ? habit.iconCode!
-                                    : 0xe645,
-                                fontFamily: habit.fontFamily != null
-                                    ? habit.fontFamily
-                                    : "MaterialIcons"),
-                            size: 40,
+                            habit.icon != null
+                                ? deserializeIcon(habit.icon!)
+                                : Icons.task,
+                            size: 37,
                             color: COLOR_WHITE,
                           ),
-                          const Spacer(),
-                          Text(
-                            habit.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
+                          addVerticalSpace(5),
+                          Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              habit.name,
+                              overflow: TextOverflow.clip,
+                              style: Theme.of(context).textTheme.headline6,
+                              textAlign: TextAlign.center,
+                            ),
+                            height: 25,
+                          )
                         ]),
                   )))),
       Positioned(

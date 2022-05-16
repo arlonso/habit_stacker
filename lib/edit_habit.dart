@@ -5,6 +5,8 @@ import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'habit_stack_changed_callback.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NewHabit extends StatefulWidget {
   const NewHabit(this.onHabitStackChanged, {this.habit, Key? key})
@@ -40,8 +42,7 @@ class _NewHabitState extends State<NewHabit> {
         _duration = widget.habit!.duration;
         _oldDuration = widget.habit!.duration;
         _icon = Icon(
-          IconData(widget.habit!.iconCode!,
-              fontFamily: widget.habit!.fontFamily),
+          deserializeIcon(widget.habit!.icon!),
           color: COLOR_WHITE,
           size: 52,
         );
@@ -82,7 +83,8 @@ class _NewHabitState extends State<NewHabit> {
     );
     setState(() {});
 
-    debugPrint('Picked Icon:  ${icon.toString()}');
+    debugPrint(
+        'Picked Icon:  ${icon.toString()}, ${icon?.codePoint.toRadixString(16)}');
   }
 
   void _checkSaveButtonStatus() {
@@ -103,7 +105,6 @@ class _NewHabitState extends State<NewHabit> {
       widget.habit!.name = newHabitNameController.text;
       widget.habit!.duration = _duration;
       widget.habit!.desc = newHabitDescController.text;
-      widget.habit!.iconCode = _icon!.icon!.codePoint;
       finalHabit = widget.habit!;
     } else {
       finalHabit = Habit(
@@ -111,11 +112,9 @@ class _NewHabitState extends State<NewHabit> {
         _duration,
         newHabitDescController.text,
       );
-
-      if (_icon != null) {
-        finalHabit.iconCode = _icon!.icon!.codePoint;
-        finalHabit.fontFamily = _icon!.icon!.fontFamily;
-      }
+    }
+    if (_icon != null) {
+      finalHabit.icon = serializeIcon(_icon!.icon!);
     }
     widget.onHabitStackChanged(finalHabit, _oldDuration, _inStack, false);
     Navigator.pop(context);
