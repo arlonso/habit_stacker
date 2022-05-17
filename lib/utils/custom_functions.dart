@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 
-String intToTimeLeft(int value) {
-  int m, s;
+String intToTimeString(int value) {
+  int h, m, s;
+  String result = "";
 
-  m = value ~/ 60;
+  h = value ~/ 3600;
 
-  s = value - (m * 60);
+  m = ((value - h * 3600)) ~/ 60;
 
-  String minuteLeft =
+  s = value - (h * 3600) - (m * 60);
+
+  String hoursLeft =
+      h.toString().length < 2 ? "0" + h.toString() : h.toString();
+
+  String minutesLeft =
       m.toString().length < 2 ? "0" + m.toString() : m.toString();
 
   String secondsLeft =
       s.toString().length < 2 ? "0" + s.toString() : s.toString();
 
-  String result = "$minuteLeft:$secondsLeft";
+  if (h > 0) {
+    result = "$hoursLeft:$minutesLeft:$secondsLeft";
+  } else if (m > 0) {
+    result = "$minutesLeft:$secondsLeft";
+  } else {
+    result = secondsLeft;
+  }
 
   return result;
 }

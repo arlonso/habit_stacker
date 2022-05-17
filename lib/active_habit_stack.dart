@@ -30,7 +30,8 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   // ], "Top of the morning", 22);
 
   bool _timePaused = false;
-  bool _routineFinished = false;
+  bool _timeOver = false;
+  bool _stackFinished = false;
   Timer? _timer;
   double _lastControllerValue = 0;
   late int _timerDuration;
@@ -43,6 +44,22 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
       () {
         if (_timerDuration > 0) {
           _timerDuration--;
+        } else {
+          _timeOver = true;
+          _timer?.cancel();
+          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+            _continueTimer();
+          });
+        }
+      },
+    );
+  }
+
+  _continueTimer() {
+    setState(
+      () {
+        if (_timerDuration < 7200) {
+          _timerDuration++;
         } else {
           _timer?.cancel();
         }
@@ -91,7 +108,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
       if (widget.habitStack.habits.length - 1 > index) {
         _activeHabit = widget.habitStack.habits[index + 1];
       } else {
-        _routineFinished = true;
+        _stackFinished = true;
         if (_timer != null) {
           _timer?.cancel();
           controller.stop();
@@ -115,7 +132,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     });
   }
 
-  void _playPauseTimer() {
+  Future<void> _playPauseTimer() async {
     if (_timer != null) {
       _timePaused = true;
       _timer?.cancel();
@@ -154,8 +171,8 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
       backgroundColor: themeData.primaryColor,
       body: Container(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: _routineFinished
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: _stackFinished
               ? Stack(
                   alignment: Alignment.center,
                   children: [
@@ -185,7 +202,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                             ],
                           );
                         }
-                        return SizedBox.shrink();
+                        return const SizedBox.shrink();
                       },
                     ),
                     Positioned(
@@ -232,11 +249,44 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                       _activeHabit.desc,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    Text(intToTimeLeft(_timerDuration),
-                        style: const TextStyle(
-                            color: COLOR_WHITE,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 60)),
+                    Container(
+                        width: size.width,
+                        child: Stack(alignment: Alignment.center, children: [
+                          Text(intToTimeString(_timerDuration),
+                              style: TextStyle(
+                                  color: _timeOver
+                                      ? COLOR_WINE_RED_LIGHT
+                                      : COLOR_WHITE,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 60)),
+                          // !_timeOver
+                          true
+                              ? Positioned(
+                                  right: 20,
+                                  child: InkWell(
+                                    onTap: () => setState(() {
+                                      _timerDuration = _timerDuration + 30;
+                                      controller.reverse(
+                                          from: controller.value + 30);
+                                    }),
+                                    child: Icon(
+                                      Icons.replay_30,
+                                      size: 40,
+                                      color: COLOR_GREY,
+                                    ),
+                                  ))
+                              : const SizedBox.shrink(),
+                        ])),
+                    _timeOver
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Text(
+                                "Usual habit duration: ${_activeHabit.duration}min",
+                                style: const TextStyle(
+                                    color: COLOR_WHITE,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 18)))
+                        : const SizedBox.shrink(),
                     addVerticalSpace(padding * 2),
                     LinearProgressIndicator(
                       color: COLOR_GREY,

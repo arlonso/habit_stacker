@@ -294,7 +294,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                                     image: DecorationImage(
                                       fit: BoxFit.cover,
                                       image: AssetImage(
-                                        "assets/images/${habitStack.cover ?? "morning.jpg"}",
+                                        "assets/images/${habitStack.cover == null || habitStack.cover == "" ? "morning.jpg" : habitStack.cover}",
                                       ),
                                     ),
                                   ),
@@ -362,8 +362,21 @@ class HabitStackOverviewItem extends StatelessWidget {
                             shape: BoxShape.circle,
                             color: COLOR_ACCENT,
                           ),
-                          child:
-                              const Icon(Icons.play_arrow, color: Colors.white),
+                          child: IconButton(
+                              icon: const Icon(
+                                Icons.play_arrow,
+                                color: Colors.white,
+                              ),
+                              onPressed: () => {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ActiveHabitStack(
+                                                    habitStack: habitStack))
+                                        // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
+                                        ),
+                                  }),
                         ),
                       )
                     ]),
