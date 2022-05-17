@@ -61,7 +61,7 @@ class HabitStackItem extends StatelessWidget {
                             habit.icon != null
                                 ? deserializeIcon(habit.icon!)
                                 : Icons.task,
-                            size: 37,
+                            size: 30,
                             color: COLOR_WHITE,
                           ),
                           addVerticalSpace(5),

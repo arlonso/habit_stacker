@@ -11,9 +11,17 @@ const COLOR_DARK_BLUE = Color(0xFF2b2d42);
 const COLOR_DARK_BLUE_SHADE_DARK = Color.fromRGBO(17, 30, 45, 1.0);
 const COLOR_DARK_BLUE_SHADE_LIGHT = Color.fromRGBO(44, 55, 78, 1.0);
 
-// const backgroundImages = {
-//   0:
-// }
+const COVER_IMAGES = {
+  0: "morning.jpg",
+  1: "morning2.jpg",
+  2: "morning3.jpg",
+  3: "midday.jpg",
+  4: "midday2.jpg",
+  5: "midday3.jpg",
+  6: "nighttime.jpg",
+  7: "nighttime2.jpg",
+  8: "nighttime3.jpg",
+};
 
 const TextTheme TEXT_THEME_DEFAULT = TextTheme(
     headline1: TextStyle(

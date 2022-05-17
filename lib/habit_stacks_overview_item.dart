@@ -86,10 +86,10 @@ class HabitStackOverviewItem extends StatelessWidget {
                                         children: [
                                           Container(
                                             height: 175,
-                                            decoration: const BoxDecoration(
+                                            decoration: BoxDecoration(
                                               image: DecorationImage(
                                                 image: AssetImage(
-                                                    "assets/images/midday3.jpg"),
+                                                    "assets/images/${habitStack.cover ?? "morning.jpg"}"),
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
@@ -290,11 +290,11 @@ class HabitStackOverviewItem extends StatelessWidget {
                                 child: Container(
                                   height: 100,
                                   width: 100,
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     image: DecorationImage(
                                       fit: BoxFit.cover,
                                       image: AssetImage(
-                                        "assets/images/morning.jpg",
+                                        "assets/images/${habitStack.cover ?? "morning.jpg"}",
                                       ),
                                     ),
                                   ),

@@ -9,9 +9,10 @@ class HabitStack {
   int duration;
   String desc;
   List<int> time;
+  String? cover;
 
   HabitStack(this.habits, this.name, this.duration, this.time,
-      [this.desc = ""]);
+      [this.desc = "", this.cover = ""]);
 
   Map toJson() {
     List<Map> habits = this.habits.map((i) => i.toJson()).toList();
@@ -20,7 +21,8 @@ class HabitStack {
       'name': name,
       'duration': duration,
       'time': time,
-      'desc': desc
+      'desc': desc,
+      'cover': cover
     };
   }
 
@@ -36,6 +38,7 @@ class HabitStack {
         json['duration'] as int,
         _time,
         json['desc'] as String,
+        json['cover'] as String?,
       );
     } else {
       return HabitStack(
@@ -44,6 +47,7 @@ class HabitStack {
         json['duration'] as int,
         json['time'] as List<int>,
         json['desc'] as String,
+        json['cover'] as String,
       );
     }
   }

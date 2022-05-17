@@ -10,6 +10,7 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
+import 'dart:math';
 import 'habit_stack.dart';
 import 'edit_habit_stack_item.dart';
 import 'edit_habit.dart';
@@ -26,6 +27,7 @@ class HabitStackList extends StatefulWidget {
 }
 
 class _HabitStackListState extends State<HabitStackList> {
+  Random random = Random();
   final ScrollController _scrollController = ScrollController();
   bool _isSaveButtonDisabled = true;
   bool _isInOverview = false;
@@ -36,6 +38,7 @@ class _HabitStackListState extends State<HabitStackList> {
   List<Habit> _habitStack = [];
   List<int> _habitStackTime = [];
   TimeOfDay _selectedTime = TimeOfDay.now();
+  String _coverPic = "morning.jpg";
 
   late TextEditingController newHabitStackNameController;
   late TextEditingController newHabitStackDescController;
@@ -53,6 +56,7 @@ class _HabitStackListState extends State<HabitStackList> {
             hour: widget.habitStack!.time[0],
             minute: widget.habitStack!.time[1]);
         _habitStackTime = widget.habitStack!.time;
+        _coverPic = widget.habitStack!.cover ?? "morning.jpg";
         newHabitStackNameController =
             TextEditingController(text: widget.habitStack!.name);
         newHabitStackDescController = newHabitStackDescController =
@@ -124,6 +128,48 @@ class _HabitStackListState extends State<HabitStackList> {
     if (timeOfDay != null && timeOfDay != _selectedTime) {
       setState(() {
         _selectedTime = timeOfDay;
+        _selectCoverPicture(_selectedTime);
+      });
+    }
+  }
+
+  _selectCoverPicture(TimeOfDay time) {
+    if (time.hour > 3 && time.hour < 12) {
+      setState(() {
+        _coverPic = COVER_IMAGES[random.nextInt(3)] ?? "morning.jpg";
+        print("${time.hour} und $_coverPic");
+      });
+    } else if (time.hour < 17) {
+      setState(() {
+        _coverPic = COVER_IMAGES[random.nextInt(7) + 3] ?? "midday.jpg";
+        print("${time.hour} und $_coverPic");
+      });
+    } else {
+      setState(() {
+        _coverPic = COVER_IMAGES[random.nextInt(9) + 6] ?? "nighttime.jpg";
+        print("${time.hour} und $_coverPic");
+      });
+    }
+  }
+
+  _switchCover(String direction) {
+    var index = COVER_IMAGES.keys
+        .firstWhere((value) => COVER_IMAGES[value] == _coverPic);
+    if (direction == "forward") {
+      setState(() {
+        if (index == COVER_IMAGES.length - 1) {
+          _coverPic = COVER_IMAGES[0]!;
+        } else {
+          _coverPic = COVER_IMAGES[index + 1]!;
+        }
+      });
+    } else {
+      setState(() {
+        if (index == 0) {
+          _coverPic = COVER_IMAGES[COVER_IMAGES.length - 1]!;
+        } else {
+          _coverPic = COVER_IMAGES[index - 1]!;
+        }
       });
     }
   }
@@ -140,12 +186,13 @@ class _HabitStackListState extends State<HabitStackList> {
       widget.habitStack!.desc = newHabitStackDescController.text;
       widget.habitStack!.duration = _duration;
       widget.habitStack!.time = [_selectedTime.hour, _selectedTime.minute];
+      widget.habitStack!.cover = _coverPic;
       finalHabitStack = widget.habitStack!;
     } else {
       String name = newHabitStackNameController.text;
       String desc = newHabitStackDescController.text;
       finalHabitStack = HabitStack(_habitStack, name, _duration,
-          [_selectedTime.hour, _selectedTime.minute], desc);
+          [_selectedTime.hour, _selectedTime.minute], desc, _coverPic);
     }
     //trigger callback function to update the state
     widget.onStackOverviewChanged(finalHabitStack, _isInOverview, false);
@@ -157,6 +204,95 @@ class _HabitStackListState extends State<HabitStackList> {
     prefs.setString('habitstack-${finalHabitStack.name}', jsonHabitStack);
 
     Navigator.pop(context);
+  }
+
+  void _deleteHabitStack() async {
+    // obtain shared preferences
+    final prefs = await SharedPreferences.getInstance();
+
+    //trigger callback function to update the state
+    widget.onStackOverviewChanged(widget.habitStack!, true, true);
+
+    // save habit stack in shared preferences
+    prefs.remove('habitstack-${widget.habitStack!.name}');
+
+    Navigator.pop(context);
+  }
+
+  void _quitDialogAndleaveScreen() {
+    Navigator.pop(context); // quit dialog
+    Navigator.pop(context); // leave scren
+  }
+
+  Future<void> _showDeleteDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Really delete habit stack?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('You are about to delete this habit stack.'),
+                Text('Are you sure?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => _deleteHabitStack(),
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showCancelDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Really cancel editing?',
+            style: GoogleFonts.roboto(
+                fontWeight: FontWeight.w700,
+                color: COLOR_GREY,
+                fontSize: 20,
+                height: 1.2),
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    'When canceling the editing of this habit stack, all your settings will be deleted.\n\n Are you sure?',
+                    style: GoogleFonts.roboto(
+                        fontWeight: FontWeight.w400,
+                        color: COLOR_GREY,
+                        fontSize: 15)),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => {_quitDialogAndleaveScreen()},
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _updateHabitStackListOrder(int oldIndex, int newIndex) {
@@ -185,10 +321,14 @@ class _HabitStackListState extends State<HabitStackList> {
             Stack(
               alignment: Alignment.topCenter,
               children: [
-                const Image(
+                Container(
                   height: 200,
-                  image: AssetImage("assets/images/midday.jpg"),
-                  fit: BoxFit.cover,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/$_coverPic"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
                 Padding(
                     padding: const EdgeInsets.symmetric(
@@ -217,7 +357,7 @@ class _HabitStackListState extends State<HabitStackList> {
                                   color: Colors.white,
                                   size: 25,
                                 ),
-                                onPressed: () => {Navigator.pop(context)}),
+                                onPressed: () => {_saveHabitStack()}),
                           ),
                           widget.habitStack != null
                               ? Container(
@@ -255,6 +395,27 @@ class _HabitStackListState extends State<HabitStackList> {
                                 )
                               : const SizedBox.shrink()
                         ])),
+                Positioned(
+                    bottom: 15,
+                    child: Row(
+                      children: [
+                        IconButton(
+                            icon: const Icon(
+                              Icons.chevron_left,
+                              color: Color.fromARGB(151, 255, 255, 255),
+                              size: 45,
+                            ),
+                            onPressed: () => {_switchCover("back")}),
+                        addHorizontalSpace(10),
+                        IconButton(
+                            icon: const Icon(
+                              Icons.chevron_right,
+                              color: Color.fromARGB(151, 255, 255, 255),
+                              size: 45,
+                            ),
+                            onPressed: () => {_switchCover("forward")}),
+                      ],
+                    ))
               ],
             ),
             Padding(
@@ -373,7 +534,7 @@ class _HabitStackListState extends State<HabitStackList> {
         ),
       ),
       Positioned(
-        bottom: 10,
+        bottom: 30,
         child: ElevatedButton(
             style: ButtonStyle(
               padding: MaterialStateProperty.all<EdgeInsets>(
@@ -386,8 +547,30 @@ class _HabitStackListState extends State<HabitStackList> {
                   ? MaterialStateProperty.all(Colors.blue[100])
                   : MaterialStateProperty.all(Colors.blue),
             ),
-            child: const Text('Save'),
+            child: Text(
+              'Save',
+              style: GoogleFonts.roboto(
+                fontWeight: FontWeight.w600,
+                color: COLOR_WHITE,
+                fontSize: 17,
+              ),
+            ),
             onPressed: () => _saveHabitStack()),
+      ),
+      Positioned(
+        bottom: 10,
+        child: InkWell(
+            child: Text(
+              widget.habitStack != null ? 'Delete' : 'Cancel',
+              style: GoogleFonts.roboto(
+                fontWeight: FontWeight.w600,
+                color: COLOR_GREY,
+                fontSize: 14,
+              ),
+            ),
+            onTap: () => widget.habitStack != null
+                ? _showDeleteDialog()
+                : _showCancelDialog()),
       )
     ]);
   }
