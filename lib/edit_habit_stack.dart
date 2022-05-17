@@ -16,7 +16,7 @@ import 'edit_habit.dart';
 import 'stack_overview_changed_callback.dart';
 
 class HabitStackList extends StatefulWidget {
-  HabitStackList(this.onStackOverviewChanged, this.habitStack, {Key? key})
+  const HabitStackList(this.onStackOverviewChanged, this.habitStack, {Key? key})
       : super(key: key);
   final StackOverviewChangedCallback onStackOverviewChanged;
   final HabitStack? habitStack;
@@ -90,7 +90,7 @@ class _HabitStackListState extends State<HabitStackList> {
       // which updates the visual appearance of the app.
       print("HabitStackChanged!");
       if (!inStack) {
-        print("${_habitStack} für folgende habit: ${habit.name}");
+        // print("${_habitStack} für folgende habit: ${habit.name}");
         _habitStack.add(habit);
         _duration += habit.duration;
       } else if (toBeDeleted) {
@@ -174,8 +174,7 @@ class _HabitStackListState extends State<HabitStackList> {
     final Size size = MediaQuery.of(context).size;
     final ThemeData themeData = Theme.of(context);
     const double padding = 25;
-    return Container(
-        child: Stack(alignment: Alignment.topCenter, children: [
+    return Stack(alignment: Alignment.topCenter, children: [
       SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 30),
         clipBehavior: Clip.hardEdge,
@@ -188,7 +187,7 @@ class _HabitStackListState extends State<HabitStackList> {
               children: [
                 const Image(
                   height: 200,
-                  image: AssetImage("assets/images/mid-day.jpg"),
+                  image: AssetImage("assets/images/midday.jpg"),
                   fit: BoxFit.cover,
                 ),
                 Padding(
@@ -390,6 +389,6 @@ class _HabitStackListState extends State<HabitStackList> {
             child: const Text('Save'),
             onPressed: () => _saveHabitStack()),
       )
-    ]));
+    ]);
   }
 }

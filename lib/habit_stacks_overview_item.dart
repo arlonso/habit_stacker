@@ -30,164 +30,215 @@ class HabitStackOverviewItem extends StatelessWidget {
     return Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
         child: index == 0
-            ? InkWell(
-                onTap: () {
-                  showModalBottomSheet<void>(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(25),
-                          topLeft: Radius.circular(25)),
-                    ),
-                    backgroundColor: Theme.of(context).primaryColor,
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return FractionallySizedBox(
-                        heightFactor: 0.95,
-                        child:
-                            HabitStackList(onStackOverviewChanged, habitStack),
-                      );
-                    },
-                  );
-                },
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Container(
-                      //   height: 392,
-                      //   decoration: const BoxDecoration(
-                      //     borderRadius: BorderRadius.only(
-                      //       bottomLeft: Radius.circular(22),
-                      //       bottomRight: Radius.circular(22),
-                      //     ),
-                      //     gradient: LinearGradient( MAYBE USE THIS GRADIENT IN FUTURE!!
-                      //       begin: Alignment.topLeft,
-                      //       end: Alignment(1, 0.0),
-                      //       colors: <Color>[
-                      //         Color(0xFFF4C465),
-                      //         Color(0xFFC63956),
-                      //       ],
-                      //     ),
-                      //     image: DecorationImage(
-                      //       alignment: Alignment.topCenter,
-                      //       image: AssetImage('assets/images/morning.jpg'),
-                      //     ),
-                      //   ),
-                      // ),
-                      Padding(
-                          padding:
-                              const EdgeInsets.only(top: padding, bottom: 10),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20.0),
-                            child: Column(
-                              children: [
-                                Stack(alignment: Alignment.center, children: [
-                                  Image(
-                                    height: 175,
-                                    image: const AssetImage(
-                                        "assets/images/morning.jpg"),
-                                    fit: BoxFit.cover,
-                                    color: Colors.white.withOpacity(0.7),
-                                    colorBlendMode: BlendMode.modulate,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 20),
-                                    child: Container(
-                                      height: size.width * 0.14,
-                                      width: size.width * 0.14,
-                                      decoration: BoxDecoration(
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.25),
-                                            spreadRadius: 0,
-                                            blurRadius: 13,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                        shape: BoxShape.circle,
-                                        color: COLOR_ACCENT,
-                                      ),
-                                      child: IconButton(
-                                          icon: const Icon(
-                                            Icons.play_arrow,
-                                            color: Colors.white,
-                                            size: 30,
-                                          ),
-                                          onPressed: () => {
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ActiveHabitStack(
-                                                                habitStack:
-                                                                    habitStack))
-                                                    // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
-                                                    ),
-                                              }),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: Container(
-                                        height: size.width * 0.1,
-                                        // width: size.width * 0.1,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.rectangle,
-                                          color: COLOR_DARK_BLUE,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(5),
-                                          child: Text(
-                                            "${habitStack.time[0]}:${habitStack.time[1] < 10 ? "0" + habitStack.time[1].toString() : habitStack.time[1]}",
-                                            style: GoogleFonts.roboto(
-                                                fontWeight: FontWeight.w700,
-                                                color: COLOR_GREY,
-                                                fontSize: 24,
-                                                height: 1.2),
-                                          ),
-                                        )),
-                                  )
-                                ]),
-                                Container(
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                        colors: [
-                                          COLOR_DARK_BLUE_SHADE_DARK,
-                                          COLOR_DARK_BLUE_SHADE_LIGHT
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter),
-                                  ),
-                                  child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15),
-                                      child: Column(children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(habitStack.name,
-                                                style: themeData
-                                                    .textTheme.headline1),
-                                            addHorizontalSpace(10),
-                                            Text(
-                                              "${habitStack.duration.toString()} min | ${habitStack.habits.length == 1 ? "${habitStack.habits.length} habit" : "${habitStack.habits.length} habits"}",
-                                              style: GoogleFonts.roboto(
-                                                fontWeight: FontWeight.w300,
-                                                color: const Color(0xFF8C8C8C),
-                                                fontSize: 18,
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ])),
-                                )
-                              ],
+            ? Stack(children: [
+                Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: InkWell(
+                        onTap: () {
+                          showModalBottomSheet<void>(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(25),
+                                  topLeft: Radius.circular(25)),
                             ),
-                          ))
-                    ]))
+                            backgroundColor: Theme.of(context).primaryColor,
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return FractionallySizedBox(
+                                heightFactor: 0.95,
+                                child: HabitStackList(
+                                    onStackOverviewChanged, habitStack),
+                              );
+                            },
+                          );
+                        },
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Container(
+                              //   height: 392,
+                              //   decoration: const BoxDecoration(
+                              //     borderRadius: BorderRadius.only(
+                              //       bottomLeft: Radius.circular(22),
+                              //       bottomRight: Radius.circular(22),
+                              //     ),
+                              //     gradient: LinearGradient( MAYBE USE THIS GRADIENT IN FUTURE!!
+                              //       begin: Alignment.topLeft,
+                              //       end: Alignment(1, 0.0),
+                              //       colors: <Color>[
+                              //         Color(0xFFF4C465),
+                              //         Color(0xFFC63956),
+                              //       ],
+                              //     ),
+                              //     image: DecorationImage(
+                              //       alignment: Alignment.topCenter,
+                              //       image: AssetImage('assets/images/morning.jpg'),
+                              //     ),
+                              //   ),
+                              // ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: Column(
+                                  children: [
+                                    Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            height: 175,
+                                            decoration: const BoxDecoration(
+                                              image: DecorationImage(
+                                                image: AssetImage(
+                                                    "assets/images/midday3.jpg"),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                              top: 0,
+                                              left: 0,
+                                              child: Container(
+                                                height: size.width * 0.1,
+                                                // width: size.width * 0.1,
+                                                decoration: const BoxDecoration(
+                                                    shape: BoxShape.rectangle,
+                                                    color: COLOR_DARK_BLUE,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    5))),
+                                                child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 5,
+                                                            bottom: 5,
+                                                            right: 10,
+                                                            left: 10),
+                                                    child: Row(children: [
+                                                      const Icon(
+                                                        Icons
+                                                            .calendar_month_outlined,
+                                                        color: COLOR_GREY,
+                                                        size: 22,
+                                                      ),
+                                                      addHorizontalSpace(5),
+                                                      Text(
+                                                        "${habitStack.time[0]}:${habitStack.time[1] < 10 ? "0" + habitStack.time[1].toString() : habitStack.time[1]}",
+                                                        style:
+                                                            GoogleFonts.roboto(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color:
+                                                                    COLOR_GREY,
+                                                                fontSize: 24,
+                                                                height: 1.2),
+                                                      ),
+                                                    ])),
+                                              ))
+                                        ]),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                            colors: [
+                                              COLOR_DARK_BLUE_SHADE_DARK,
+                                              COLOR_DARK_BLUE_SHADE_LIGHT
+                                            ],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter),
+                                      ),
+                                      child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Column(children: [
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(habitStack.name,
+                                                    style: themeData
+                                                        .textTheme.headline1),
+                                                // addHorizontalSpace(10),
+                                                // Text(
+                                                //   "${habitStack.duration.toString()} min | ${habitStack.habits.length == 1 ? "${habitStack.habits.length} habit" : "${habitStack.habits.length} habits"}",
+                                                //   style: GoogleFonts.roboto(
+                                                //     fontWeight: FontWeight.w300,
+                                                //     color: const Color(0xFF8C8C8C),
+                                                //     fontSize: 18,
+                                                //   ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 5),
+                                                  child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.timer_sharp,
+                                                          color: COLOR_GREY,
+                                                          size: 16,
+                                                        ),
+                                                        addHorizontalSpace(5),
+                                                        Text(
+                                                          "${habitStack.duration.toString()} min | ${habitStack.habits.length} habits",
+                                                          style: GoogleFonts
+                                                              .roboto(
+                                                            fontWeight:
+                                                                FontWeight.w700,
+                                                            color: const Color(
+                                                                0xFF8C8C8C),
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ]),
+                                                )
+                                              ],
+                                            ),
+                                          ])),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ]))),
+                Positioned(
+                  top: 5,
+                  right: 0,
+                  child: Container(
+                    height: size.width * 0.14,
+                    width: size.width * 0.14,
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          spreadRadius: 0,
+                          blurRadius: 13,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                      shape: BoxShape.circle,
+                      color: COLOR_ACCENT,
+                    ),
+                    child: IconButton(
+                        icon: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        onPressed: () => {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ActiveHabitStack(
+                                          habitStack: habitStack))
+                                  // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
+                                  ),
+                            }),
+                  ),
+                ),
+              ])
             : Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
@@ -241,9 +292,9 @@ class HabitStackOverviewItem extends StatelessWidget {
                                   width: 100,
                                   decoration: const BoxDecoration(
                                     image: DecorationImage(
-                                      fit: BoxFit.fill,
+                                      fit: BoxFit.cover,
                                       image: AssetImage(
-                                        "assets/images/mid-day.jpg",
+                                        "assets/images/morning.jpg",
                                       ),
                                     ),
                                   ),
