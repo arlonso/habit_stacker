@@ -134,76 +134,47 @@ class _NewHabitState extends State<NewHabit> {
     final Size size = MediaQuery.of(context).size;
     final ThemeData themeData = Theme.of(context);
     const double padding = 25;
-    return SafeArea(
-        child: Container(
-            height: MediaQuery.of(context).size.height,
-            child: Stack(alignment: Alignment.topCenter, children: [
-              Padding(
-                padding:
-                    EdgeInsets.only(top: 100, left: 20, right: 20, bottom: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    InkWell(
-                        onTap: _pickIcon,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: COLOR_WHITE, width: 2)),
-                          child: Padding(
-                              padding: const EdgeInsets.all(17),
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 300),
-                                child: _icon ??
-                                    const Icon(
-                                      Icons.task,
-                                      color: COLOR_WHITE,
-                                      size: 52,
-                                    ),
-                              )),
-                        )),
-                    addVerticalSpace(padding),
-                    TextField(
-                      textAlign: TextAlign.center,
-                      controller: newHabitNameController,
-                      style: themeData.textTheme.headline2,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.edit,
-                          color: COLOR_GREY,
-                        ),
-                        hintStyle: TextStyle(color: COLOR_GREY),
-                        border: InputBorder.none,
-                        hintText: 'Enter a stack name',
-                      ),
-                    ),
-                    addVerticalSpace(padding),
-                    Column(
+    return ClipRRect(
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(25), topRight: Radius.circular(25)),
+        child: SafeArea(
+            child: Scaffold(
+                resizeToAvoidBottomInset: true,
+                backgroundColor: Colors.transparent,
+                body: SingleChildScrollView(
+                    child: Container(
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        top: 50, left: 20, right: 20, bottom: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        NumberPicker(
-                          value: _duration,
-                          minValue: 1,
-                          maxValue: 120,
-                          step: 1,
-                          axis: Axis.horizontal,
-                          onChanged: (value) =>
-                              setState(() => _duration = value),
-                        ),
-                        Text('Duration: $_duration m'),
-                      ],
-                    ),
-                    addVerticalSpace(padding),
-                    Expanded(
-                      flex: 1,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical, //.horizontal
-                        child: TextField(
+                        InkWell(
+                            onTap: _pickIcon,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(color: COLOR_WHITE, width: 2)),
+                              child: Padding(
+                                  padding: const EdgeInsets.all(17),
+                                  child: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 300),
+                                    child: _icon ??
+                                        const Icon(
+                                          Icons.task,
+                                          color: COLOR_WHITE,
+                                          size: 52,
+                                        ),
+                                  )),
+                            )),
+                        addVerticalSpace(padding),
+                        TextField(
                           textAlign: TextAlign.center,
-                          controller: newHabitDescController,
-                          style: themeData.textTheme.headline4,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
+                          controller: newHabitNameController,
+                          style: themeData.textTheme.headline2,
                           decoration: const InputDecoration(
                             suffixIcon: Icon(
                               Icons.edit,
@@ -211,76 +182,112 @@ class _NewHabitState extends State<NewHabit> {
                             ),
                             hintStyle: TextStyle(color: COLOR_GREY),
                             border: InputBorder.none,
-                            hintText: 'Enter a description',
+                            hintText: 'Enter a stack name',
                           ),
                         ),
-                      ),
-                    ),
-                    addVerticalSpace(10),
-                    ElevatedButton(
-                        style: ButtonStyle(
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(horizontal: padding)),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                        addVerticalSpace(padding),
+                        Column(
+                          children: <Widget>[
+                            NumberPicker(
+                              value: _duration,
+                              minValue: 1,
+                              maxValue: 120,
+                              step: 1,
+                              axis: Axis.horizontal,
+                              onChanged: (value) =>
+                                  setState(() => _duration = value),
+                            ),
+                            Text('Duration: $_duration m'),
+                          ],
+                        ),
+                        addVerticalSpace(padding),
+                        Expanded(
+                          flex: 1,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical, //.horizontal
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              controller: newHabitDescController,
+                              style: themeData.textTheme.headline4,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              decoration: const InputDecoration(
+                                suffixIcon: Icon(
+                                  Icons.edit,
+                                  color: COLOR_GREY,
+                                ),
+                                hintStyle: TextStyle(color: COLOR_GREY),
+                                border: InputBorder.none,
+                                hintText: 'Enter a description',
+                              ),
+                            ),
+                          ),
+                        ),
+                        addVerticalSpace(10),
+                        ElevatedButton(
+                            style: ButtonStyle(
+                              padding: MaterialStateProperty.all<EdgeInsets>(
+                                  EdgeInsets.symmetric(horizontal: padding)),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
-                          )),
-                          backgroundColor: _isSaveButtonDisabled
-                              ? MaterialStateProperty.all(Colors.blue[100])
-                              : MaterialStateProperty.all(Colors.blue),
-                        ),
-                        child: Text(
-                          'Save',
-                          style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w600,
-                            color: COLOR_WHITE,
-                            fontSize: 17,
-                          ),
-                        ),
-                        onPressed: () => _saveHabit()),
-                    InkWell(
-                        child: Text(
-                          widget.habit != null ? 'Delete' : 'Cancel',
-                          style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w600,
-                            color: COLOR_GREY,
-                            fontSize: 14,
-                          ),
-                        ),
-                        onTap: () => widget.habit != null
-                            ? _deleteHabit()
-                            : Navigator.pop(context)),
-                  ],
-                ),
-              ),
-              Positioned(
-                top: 20,
-                left: 20,
-                child: Container(
-                  height: size.width * 0.13,
-                  width: size.width * 0.13,
-                  decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          spreadRadius: 0,
-                          blurRadius: 13,
-                          offset: const Offset(0, 4),
-                        ),
+                                borderRadius: BorderRadius.circular(18.0),
+                              )),
+                              backgroundColor: _isSaveButtonDisabled
+                                  ? MaterialStateProperty.all(Colors.blue[100])
+                                  : MaterialStateProperty.all(Colors.blue),
+                            ),
+                            child: Text(
+                              'Save',
+                              style: GoogleFonts.roboto(
+                                fontWeight: FontWeight.w600,
+                                color: COLOR_WHITE,
+                                fontSize: 17,
+                              ),
+                            ),
+                            onPressed: () => _saveHabit()),
+                        InkWell(
+                            child: Text(
+                              widget.habit != null ? 'Delete' : 'Cancel',
+                              style: GoogleFonts.roboto(
+                                fontWeight: FontWeight.w600,
+                                color: COLOR_GREY,
+                                fontSize: 14,
+                              ),
+                            ),
+                            onTap: () => widget.habit != null
+                                ? _deleteHabit()
+                                : Navigator.pop(context)),
                       ],
-                      shape: BoxShape.rectangle,
-                      color: COLOR_GREY,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_outlined,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                      onPressed: () => {_saveHabit()}),
-                ),
-              )
-            ])));
+                    ),
+                  ),
+                  // Positioned(
+                  //   top: 20,
+                  //   left: 20,
+                  //   child: Container(
+                  //     height: size.width * 0.13,
+                  //     width: size.width * 0.13,
+                  //     decoration: BoxDecoration(
+                  //         boxShadow: [
+                  //           BoxShadow(
+                  //             color: Colors.black.withOpacity(0.3),
+                  //             spreadRadius: 0,
+                  //             blurRadius: 13,
+                  //             offset: const Offset(0, 4),
+                  //           ),
+                  //         ],
+                  //         shape: BoxShape.rectangle,
+                  //         color: COLOR_GREY,
+                  //         borderRadius: BorderRadius.circular(10)),
+                  //     child: IconButton(
+                  //         icon: const Icon(
+                  //           Icons.arrow_back_outlined,
+                  //           color: Colors.white,
+                  //           size: 25,
+                  //         ),
+                  //         onPressed: () => {_saveHabit()}),
+                  //   ),
+                  // )
+                )))));
   }
 }

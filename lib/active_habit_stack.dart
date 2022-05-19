@@ -186,7 +186,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                             children: [
                               Text(
                                 "Routine \n finished!".toUpperCase(),
-                                style: GoogleFonts.robotoCondensed(
+                                style: const TextStyle(
                                   color: COLOR_WHITE,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 55,
@@ -243,6 +243,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                           color: COLOR_WHITE,
                           fontWeight: FontWeight.w500,
                           fontSize: 40),
+                      textAlign: TextAlign.center,
                     ),
                     addVerticalSpace(padding),
                     Text(

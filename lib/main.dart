@@ -13,12 +13,18 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = window.physicalSize.width;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-          primaryColor: COLOR_DARK_BLUE_SHADE_DARK,
-          textTheme: screenWidth < 500 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT),
-      home: const HabitStackOverview(),
-    );
+
+    return GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              primaryColor: COLOR_DARK_BLUE_SHADE_DARK,
+              textTheme:
+                  screenWidth < 500 ? TEXT_THEME_SMALL : TEXT_THEME_DEFAULT),
+          home: const HabitStackOverview(),
+        ));
   }
 }
