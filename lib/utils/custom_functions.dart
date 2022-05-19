@@ -31,3 +31,30 @@ String intToTimeString(int value) {
 }
 
 double toDouble(List<int> myTime) => myTime[0] + myTime[1] / 60.0;
+
+extension TimeOfDayConverter on TimeOfDay {
+  String to24hours() {
+    final hour = this.hour.toString().padLeft(2, "0");
+    final min = this.minute.toString().padLeft(2, "0");
+    return "$hour:$min";
+  }
+}
+
+extension TimeOfDayExtension on TimeOfDay {
+  // Ported from org.threeten.bp;
+  TimeOfDay plusMinutes(int minutes) {
+    if (minutes == 0) {
+      return this;
+    } else {
+      int mofd = this.hour * 60 + this.minute;
+      int newMofd = ((minutes % 1440) + mofd + 1440) % 1440;
+      if (mofd == newMofd) {
+        return this;
+      } else {
+        int newHour = newMofd ~/ 60;
+        int newMinute = newMofd % 60;
+        return TimeOfDay(hour: newHour, minute: newMinute);
+      }
+    }
+  }
+}

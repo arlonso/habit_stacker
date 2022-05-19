@@ -38,6 +38,7 @@ dependencies:
   flutter_iconpicker: ^3.1.3
   font_awesome_flutter: ^10.1.0
   line_awesome_flutter: ^2.0.0
+  emoji_picker_flutter: ^1.1.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -94,3 +95,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: CustomIcons
+      fonts:
+        - asset: fonts/CustomIcons.ttf

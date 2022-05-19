@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:collection/collection.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +30,6 @@ class HabitStackList extends StatefulWidget {
 class _HabitStackListState extends State<HabitStackList> {
   Random random = Random();
   final ScrollController _scrollController = ScrollController();
-  bool _isSaveButtonDisabled = true;
   bool _isInOverview = false;
 
   // String _HabitStackItemName = "";
@@ -38,14 +38,15 @@ class _HabitStackListState extends State<HabitStackList> {
   List<Habit> _habitStack = [];
   List<int> _habitStackTime = [];
   TimeOfDay _selectedTime = TimeOfDay.now();
-  String _coverPic = "morning.jpg";
 
+  late String _coverPic;
   late TextEditingController newHabitStackNameController;
   late TextEditingController newHabitStackDescController;
 
   @override
   void initState() {
     setState(() {
+      _selectCoverPicture(_selectedTime);
       if (widget.habitStack != null) {
         // initialize habits
         _habitStack = widget.habitStack!.habits;
@@ -56,20 +57,20 @@ class _HabitStackListState extends State<HabitStackList> {
             hour: widget.habitStack!.time[0],
             minute: widget.habitStack!.time[1]);
         _habitStackTime = widget.habitStack!.time;
-        _coverPic = widget.habitStack!.cover ?? "morning.jpg";
+        if (widget.habitStack!.cover != null &&
+            widget.habitStack!.cover != "") {
+          _coverPic = widget.habitStack!.cover!;
+        }
         newHabitStackNameController =
             TextEditingController(text: widget.habitStack!.name);
         newHabitStackDescController = newHabitStackDescController =
             TextEditingController(text: widget.habitStack!.desc);
-        _isSaveButtonDisabled = false;
         _isInOverview = true;
       } else {
         newHabitStackNameController = TextEditingController();
         newHabitStackDescController =
             newHabitStackDescController = TextEditingController();
       }
-      // Start listening to changes.
-      newHabitStackNameController.addListener(_checkSaveButtonStatus);
     });
 
     super.initState();
@@ -107,18 +108,6 @@ class _HabitStackListState extends State<HabitStackList> {
     });
   }
 
-  void _checkSaveButtonStatus() {
-    if (newHabitStackNameController.text == "" || _habitStack.isEmpty) {
-      setState(() {
-        _isSaveButtonDisabled = true;
-      });
-    } else {
-      setState(() {
-        _isSaveButtonDisabled = false;
-      });
-    }
-  }
-
   _selectTime(BuildContext context) async {
     final TimeOfDay? timeOfDay = await showTimePicker(
       context: context,
@@ -137,17 +126,14 @@ class _HabitStackListState extends State<HabitStackList> {
     if (time.hour > 3 && time.hour < 12) {
       setState(() {
         _coverPic = COVER_IMAGES[random.nextInt(3)] ?? "morning.jpg";
-        print("${time.hour} und $_coverPic");
       });
     } else if (time.hour < 17) {
       setState(() {
         _coverPic = COVER_IMAGES[random.nextInt(7) + 3] ?? "midday.jpg";
-        print("${time.hour} und $_coverPic");
       });
     } else {
       setState(() {
         _coverPic = COVER_IMAGES[random.nextInt(9) + 6] ?? "nighttime.jpg";
-        print("${time.hour} und $_coverPic");
       });
     }
   }
@@ -310,9 +296,9 @@ class _HabitStackListState extends State<HabitStackList> {
     final Size size = MediaQuery.of(context).size;
     final ThemeData themeData = Theme.of(context);
     const double padding = 25;
-    return Stack(alignment: Alignment.topCenter, children: [
+    return SafeArea(
+        child: Stack(alignment: Alignment.topCenter, children: [
       SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 30),
         clipBehavior: Clip.hardEdge,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -324,11 +310,14 @@ class _HabitStackListState extends State<HabitStackList> {
                 Container(
                   height: 200,
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage("assets/images/$_coverPic"),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                      image: DecorationImage(
+                        image: AssetImage("assets/images/$_coverPic"),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: new BorderRadius.only(
+                        topLeft: const Radius.circular(25.0),
+                        topRight: const Radius.circular(25.0),
+                      )),
                 ),
                 Padding(
                     padding: const EdgeInsets.symmetric(
@@ -419,7 +408,7 @@ class _HabitStackListState extends State<HabitStackList> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Row(children: [
                 Expanded(
                     child: TextField(
@@ -434,10 +423,10 @@ class _HabitStackListState extends State<HabitStackList> {
                 Container(
                   height: size.width * 0.1,
                   // width: size.width * 0.1,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: COLOR_DARK_BLUE,
-                  ),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      color: COLOR_DARK_BLUE,
+                      borderRadius: BorderRadius.circular(10)),
                   child: InkWell(
                       onTap: () => _selectTime(context),
                       child: Padding(
@@ -459,7 +448,8 @@ class _HabitStackListState extends State<HabitStackList> {
               color: COLOR_GREY,
             ),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: TextField(
                   controller: newHabitStackDescController,
                   style: themeData.textTheme.headline4,
@@ -518,7 +508,7 @@ class _HabitStackListState extends State<HabitStackList> {
                             context: context,
                             builder: (BuildContext context) {
                               return FractionallySizedBox(
-                                  heightFactor: 0.8,
+                                  heightFactor: BOTTOM_SHEET_SIZE_SMALL,
                                   child: NewHabit(_handleHabitStackChanged));
                             },
                           );
@@ -538,21 +528,19 @@ class _HabitStackListState extends State<HabitStackList> {
         child: ElevatedButton(
             style: ButtonStyle(
               padding: MaterialStateProperty.all<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: padding)),
+                  EdgeInsets.symmetric(horizontal: padding, vertical: 10)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
               )),
-              backgroundColor: _isSaveButtonDisabled
-                  ? MaterialStateProperty.all(Colors.blue[100])
-                  : MaterialStateProperty.all(Colors.blue),
+              backgroundColor: MaterialStateProperty.all(Colors.blue),
             ),
             child: Text(
               'Save',
               style: GoogleFonts.roboto(
                 fontWeight: FontWeight.w600,
                 color: COLOR_WHITE,
-                fontSize: 17,
+                fontSize: 19,
               ),
             ),
             onPressed: () => _saveHabitStack()),
@@ -572,6 +560,6 @@ class _HabitStackListState extends State<HabitStackList> {
                 ? _showDeleteDialog()
                 : _showCancelDialog()),
       )
-    ]);
+    ]));
   }
 }

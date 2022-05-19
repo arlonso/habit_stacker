@@ -46,7 +46,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                             context: context,
                             builder: (BuildContext context) {
                               return FractionallySizedBox(
-                                heightFactor: 0.95,
+                                heightFactor: BOTTOM_SHEET_SIZE,
                                 child: HabitStackList(
                                     onStackOverviewChanged, habitStack),
                               );
@@ -203,41 +203,44 @@ class HabitStackOverviewItem extends StatelessWidget {
                                 ),
                               )
                             ]))),
-                Positioned(
-                  top: 5,
-                  right: 0,
-                  child: Container(
-                    height: size.width * 0.14,
-                    width: size.width * 0.14,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          spreadRadius: 0,
-                          blurRadius: 13,
-                          offset: const Offset(0, 4),
+                habitStack.habits.isEmpty
+                    ? const SizedBox.shrink()
+                    : Positioned(
+                        top: 5,
+                        right: 0,
+                        child: Container(
+                          height: size.width * 0.14,
+                          width: size.width * 0.14,
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.25),
+                                spreadRadius: 0,
+                                blurRadius: 13,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            shape: BoxShape.circle,
+                            color: COLOR_ACCENT,
+                          ),
+                          child: IconButton(
+                              icon: const Icon(
+                                Icons.play_arrow,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                              onPressed: () => {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ActiveHabitStack(
+                                                    habitStack: habitStack))
+                                        // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
+                                        ),
+                                  }),
                         ),
-                      ],
-                      shape: BoxShape.circle,
-                      color: COLOR_ACCENT,
-                    ),
-                    child: IconButton(
-                        icon: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                        onPressed: () => {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ActiveHabitStack(
-                                          habitStack: habitStack))
-                                  // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
-                                  ),
-                            }),
-                  ),
-                ),
+                      ),
               ])
             : Padding(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -254,7 +257,7 @@ class HabitStackOverviewItem extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return FractionallySizedBox(
-                          heightFactor: 0.95,
+                          heightFactor: BOTTOM_SHEET_SIZE,
                           child: HabitStackList(
                               onStackOverviewChanged, habitStack),
                         );
@@ -352,33 +355,36 @@ class HabitStackOverviewItem extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Positioned(
-                        bottom: 27,
-                        right: 0,
-                        child: Container(
-                          height: size.width * 0.1,
-                          width: size.width * 0.1,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: COLOR_ACCENT,
-                          ),
-                          child: IconButton(
-                              icon: const Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
+                      habitStack.habits.isEmpty
+                          ? const SizedBox.shrink()
+                          : Positioned(
+                              bottom: 27,
+                              right: 0,
+                              child: Container(
+                                height: size.width * 0.1,
+                                width: size.width * 0.1,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: COLOR_ACCENT,
+                                ),
+                                child: IconButton(
+                                    icon: const Icon(
+                                      Icons.play_arrow,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () => {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ActiveHabitStack(
+                                                          habitStack:
+                                                              habitStack))
+                                              // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
+                                              ),
+                                        }),
                               ),
-                              onPressed: () => {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ActiveHabitStack(
-                                                    habitStack: habitStack))
-                                        // onPressed: () => onStackOverviewChanged(habitStack, inOverview)),
-                                        ),
-                                  }),
-                        ),
-                      )
+                            )
                     ]),
                   ),
                 )));

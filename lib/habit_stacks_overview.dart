@@ -179,7 +179,7 @@ class AddStackButton extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return FractionallySizedBox(
-              heightFactor: 0.95,
+              heightFactor: BOTTOM_SHEET_SIZE,
               child: HabitStackList(onStackOverviewChanged, null),
             );
           },

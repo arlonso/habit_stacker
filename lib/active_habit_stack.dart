@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:habit_stacker/custom/custom_icons.dart';
 import 'package:habit_stacker/habit.dart';
 import 'package:habit_stacker/utils/constants.dart';
 import 'package:habit_stacker/utils/widget_functions.dart';
@@ -34,10 +35,17 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   bool _stackFinished = false;
   Timer? _timer;
   double _lastControllerValue = 0;
+  final TimeOfDay _startingTime = TimeOfDay.now();
+  int _passedTimeInSeconds = 0;
+  int _addedTimeInSeconds = 0;
+  double _finishedHabitCount = 0;
+  late TimeOfDay _finishTime;
+  late int _totalDurationInSeconds;
   late int _timerDuration;
   late Habit _activeHabit;
   late AnimationController controller;
   late final Future<LottieComposition> _composition;
+  late int _durationInSeconds;
 
   void _startTimer() {
     setState(
@@ -71,9 +79,11 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   void initState() {
     //initialize active habit
     setState(() {
+      _finishTime = _startingTime.plusMinutes(widget.habitStack.duration);
+      _totalDurationInSeconds = widget.habitStack.duration * 60;
       _activeHabit = widget.habitStack.habits[0];
-      final durationInSeconds = _activeHabit.duration * 60;
-      _timerDuration = durationInSeconds;
+      _durationInSeconds = _activeHabit.duration * 60;
+      _timerDuration = _durationInSeconds;
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         _startTimer();
       });
@@ -83,7 +93,6 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
         vsync: this, duration: Duration(seconds: _timerDuration))
       // upperBound: _timerDuration.toDouble())
       ..addListener(() {
-        print(controller.value);
         setState(() {});
       });
     controller.reverse(from: (_timerDuration.toDouble()));
@@ -105,9 +114,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     setState(() {
       final index = widget.habitStack.habits.indexOf(_activeHabit);
 
-      if (widget.habitStack.habits.length - 1 > index) {
-        _activeHabit = widget.habitStack.habits[index + 1];
-      } else {
+      if (widget.habitStack.habits.length - 1 <= index) {
         _stackFinished = true;
         if (_timer != null) {
           _timer?.cancel();
@@ -116,8 +123,16 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
         }
       }
 
-      final durationInSeconds = _activeHabit.duration * 60;
-      _timerDuration = durationInSeconds;
+      _calculatePassedTime();
+      _calculateNewTotalTime(); // add or subtract spend time from total habit stack duration
+      _calculateNewFinishTime();
+      _finishedHabitCount++;
+      _activeHabit = widget.habitStack.habits[index + 1];
+      _durationInSeconds = _activeHabit.duration * 60;
+      _timerDuration = _durationInSeconds;
+      _addedTimeInSeconds = 0;
+      _timeOver = false;
+
       //reset timer
       if (_timer != null) {
         _timer?.cancel();
@@ -126,8 +141,15 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
         _startTimer();
       });
 
+      controller.dispose();
+      //initialize progress animation
+      controller = AnimationController(
+          vsync: this, duration: Duration(seconds: _timerDuration))
+        // upperBound: _timerDuration.toDouble())
+        ..addListener(() {
+          setState(() {});
+        });
       //reset animation
-      controller.reset();
       controller.reverse(from: _timerDuration.toDouble());
     });
   }
@@ -161,6 +183,40 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     return await LottieComposition.fromByteData(assetData);
   }
 
+  _secondsToControllerValue(int seconds) {
+    // print(
+    //     "${controller.value} and ${seconds / _durationInSeconds} and $seconds}");
+    return seconds / _durationInSeconds;
+  }
+
+  _calculatePassedTime() {
+    setState(() {
+      _passedTimeInSeconds += _timeOver
+          ? _durationInSeconds + _timerDuration
+          : _durationInSeconds - _timerDuration;
+    });
+  }
+
+  _calculateNewTotalTime() {
+    setState(() {
+      if (_timeOver) {
+        _totalDurationInSeconds += _timerDuration + _addedTimeInSeconds;
+      } else {
+        print(
+            "Total duration before: ${(_totalDurationInSeconds) / 60}min, Total duration after: ${(_totalDurationInSeconds - _timerDuration + _addedTimeInSeconds) / 60}min, subtracted time: ${(-_timerDuration + _addedTimeInSeconds) / 60}min");
+        _totalDurationInSeconds =
+            (_totalDurationInSeconds - _timerDuration) + _addedTimeInSeconds;
+      }
+    });
+  }
+
+  _calculateNewFinishTime() {
+    setState(() {
+      int totalDurationInMinutes = (_totalDurationInSeconds / 60).round();
+      _finishTime = _startingTime.plusMinutes(totalDurationInMinutes);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -169,9 +225,10 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
     return MaterialApp(
         home: Scaffold(
       backgroundColor: themeData.primaryColor,
-      body: Container(
+      body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding:
+              const EdgeInsets.symmetric(horizontal: padding, vertical: 40),
           child: _stackFinished
               ? Stack(
                   alignment: Alignment.center,
@@ -235,8 +292,77 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                   ],
                 )
               : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5, bottom: 5, right: 10, left: 10),
+                            child: Row(children: [
+                              const Icon(
+                                CustomIcons.timer_play,
+                                color: COLOR_GREY,
+                                size: 20,
+                              ),
+                              addHorizontalSpace(5),
+                              Text(
+                                _startingTime.to24hours(),
+                                style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.w700,
+                                    color: COLOR_GREY,
+                                    fontSize: 20,
+                                    height: 1.2),
+                              ),
+                            ])),
+                        Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5, bottom: 5, right: 10, left: 10),
+                            child:
+                                Stack(alignment: Alignment.center, children: [
+                              SizedBox(
+                                child: CircularProgressIndicator(
+                                  value: _finishedHabitCount /
+                                      widget.habitStack.habits.length,
+                                  backgroundColor: COLOR_WHITE,
+                                  color: COLOR_ACCENT,
+                                  strokeWidth: 2,
+                                ),
+                                height: 45.0,
+                                width: 45.0,
+                              ),
+                              Text(
+                                "${(_finishedHabitCount).toInt()}/${widget.habitStack.habits.length}",
+                                style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.w700,
+                                    color: COLOR_GREY,
+                                    fontSize: 16,
+                                    height: 1.2),
+                              ),
+                            ])),
+                        Padding(
+                            padding: const EdgeInsets.only(
+                                top: 5, bottom: 5, right: 10, left: 10),
+                            child: Row(children: [
+                              const Icon(
+                                FontAwesomeIcons.flagCheckered,
+                                color: COLOR_GREY,
+                                size: 16,
+                              ),
+                              addHorizontalSpace(5),
+                              Text(
+                                _finishTime.to24hours(),
+                                style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.w700,
+                                    color: COLOR_GREY,
+                                    fontSize: 20,
+                                    height: 1.2),
+                              ),
+                            ])),
+                      ],
+                    ),
+                    addVerticalSpace(50),
                     Text(
                       _activeHabit.name.toUpperCase(),
                       style: const TextStyle(
@@ -266,9 +392,12 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                                   right: 20,
                                   child: InkWell(
                                     onTap: () => setState(() {
-                                      _timerDuration = _timerDuration + 30;
+                                      _timerDuration += 30;
+                                      _addedTimeInSeconds += 30;
+                                      _durationInSeconds += 30;
                                       controller.reverse(
-                                          from: controller.value + 30);
+                                          from: controller.value +
+                                              _secondsToControllerValue(30));
                                     }),
                                     child: Icon(
                                       Icons.replay_30,

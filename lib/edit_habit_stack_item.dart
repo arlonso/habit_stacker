@@ -41,7 +41,7 @@ class HabitStackItem extends StatelessWidget {
                     context: context,
                     builder: (BuildContext context) {
                       return FractionallySizedBox(
-                          heightFactor: 0.95,
+                          heightFactor: BOTTOM_SHEET_SIZE_SMALL,
                           child: NewHabit(
                             onHabitStackChanged,
                             habit: habit,

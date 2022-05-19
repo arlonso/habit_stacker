@@ -22,7 +22,6 @@ class NewHabit extends StatefulWidget {
 class _NewHabitState extends State<NewHabit> {
   late TextEditingController newHabitNameController;
   late TextEditingController newHabitDescController;
-  bool _isSaveButtonDisabled = true;
   bool _inStack = false;
 
   // String _HabitStackItemName = "";
@@ -49,15 +48,12 @@ class _NewHabitState extends State<NewHabit> {
           color: COLOR_WHITE,
           size: 45,
         );
-        _isSaveButtonDisabled = false;
         _inStack = true;
       } else {
         newHabitNameController = TextEditingController();
         newHabitDescController = TextEditingController();
       }
     });
-    // Start listening to changes.
-    newHabitNameController.addListener(_checkSaveButtonStatus);
 
     super.initState();
   }
@@ -88,18 +84,6 @@ class _NewHabitState extends State<NewHabit> {
 
     debugPrint(
         'Picked Icon:  ${icon.toString()}, ${icon?.codePoint.toRadixString(16)}');
-  }
-
-  void _checkSaveButtonStatus() {
-    if (newHabitNameController.text != "") {
-      setState(() {
-        _isSaveButtonDisabled = false;
-      });
-    } else {
-      setState(() {
-        _isSaveButtonDisabled = true;
-      });
-    }
   }
 
   void _saveHabit() {
@@ -227,22 +211,22 @@ class _NewHabitState extends State<NewHabit> {
                         ElevatedButton(
                             style: ButtonStyle(
                               padding: MaterialStateProperty.all<EdgeInsets>(
-                                  EdgeInsets.symmetric(horizontal: padding)),
+                                  EdgeInsets.symmetric(
+                                      horizontal: padding, vertical: 10)),
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(18.0),
                               )),
-                              backgroundColor: _isSaveButtonDisabled
-                                  ? MaterialStateProperty.all(Colors.blue[100])
-                                  : MaterialStateProperty.all(Colors.blue),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.blue),
                             ),
                             child: Text(
                               'Save',
                               style: GoogleFonts.roboto(
                                 fontWeight: FontWeight.w600,
                                 color: COLOR_WHITE,
-                                fontSize: 17,
+                                fontSize: 19,
                               ),
                             ),
                             onPressed: () => _saveHabit()),
