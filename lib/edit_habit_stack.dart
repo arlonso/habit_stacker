@@ -314,9 +314,9 @@ class _HabitStackListState extends State<HabitStackList> {
                         image: AssetImage("assets/images/$_coverPic"),
                         fit: BoxFit.cover,
                       ),
-                      borderRadius: new BorderRadius.only(
-                        topLeft: const Radius.circular(25.0),
-                        topRight: const Radius.circular(25.0),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(25.0),
+                        topRight: Radius.circular(25.0),
                       )),
                 ),
                 Padding(
@@ -464,7 +464,7 @@ class _HabitStackListState extends State<HabitStackList> {
               color: COLOR_GREY,
             ),
             Padding(
-              padding: EdgeInsets.only(top: 5, bottom: 8),
+              padding: const EdgeInsets.only(top: 5, bottom: 8),
               child: Text(
                 '${_habitStack.length} Habits | ${_duration.toString()} min',
                 style: GoogleFonts.roboto(
@@ -475,7 +475,7 @@ class _HabitStackListState extends State<HabitStackList> {
               ),
             ),
             Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: ReorderableGridView.count(
                   shrinkWrap: true,
                   crossAxisSpacing: 10,
@@ -514,7 +514,7 @@ class _HabitStackListState extends State<HabitStackList> {
                           );
                         },
                         child: Container(
-                          child: Center(child: Icon(Icons.add)),
+                          child: const Center(child: const Icon(Icons.add)),
                         ),
                       ),
                     ),
@@ -528,7 +528,8 @@ class _HabitStackListState extends State<HabitStackList> {
         child: ElevatedButton(
             style: ButtonStyle(
               padding: MaterialStateProperty.all<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: padding, vertical: 10)),
+                  const EdgeInsets.symmetric(
+                      horizontal: padding, vertical: 10)),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),

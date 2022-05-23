@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habit_stacker/custom/custom_icons.dart';
@@ -39,6 +41,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   int _passedTimeInSeconds = 0;
   int _addedTimeInSeconds = 0;
   double _finishedHabitCount = 0;
+  bool _descExpanded = false;
   late TimeOfDay _finishTime;
   late int _totalDurationInSeconds;
   late int _timerDuration;
@@ -350,7 +353,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                                 color: COLOR_GREY,
                                 size: 16,
                               ),
-                              addHorizontalSpace(5),
+                              addHorizontalSpace(10),
                               Text(
                                 _finishTime.to24hours(),
                                 style: GoogleFonts.roboto(
@@ -362,69 +365,115 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                             ])),
                       ],
                     ),
-                    addVerticalSpace(50),
-                    Text(
-                      _activeHabit.name.toUpperCase(),
-                      style: const TextStyle(
-                          color: COLOR_WHITE,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 40),
-                      textAlign: TextAlign.center,
+                    const Divider(
+                      thickness: 1,
+                      color: COLOR_DARK_BLUE_SHADE_LIGHT,
+                    ),
+                    Visibility(
+                      visible: !_descExpanded,
+                      child: Column(children: [
+                        addVerticalSpace(padding * 2),
+                        Container(
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: COLOR_WHITE, width: 2)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(17),
+                            child: Icon(
+                              _activeHabit.icon != null
+                                  ? deserializeIcon(_activeHabit.icon!)
+                                  : Icons.task,
+                              color: COLOR_WHITE,
+                              size: 52,
+                            ),
+                          ),
+                        ),
+                        addVerticalSpace(padding),
+                        Text(
+                          _activeHabit.name.toUpperCase(),
+                          style: const TextStyle(
+                              color: COLOR_WHITE,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 45),
+                          textAlign: TextAlign.center,
+                        ),
+                        addVerticalSpace(padding * 3),
+                        Container(
+                            width: size.width,
+                            child:
+                                Stack(alignment: Alignment.center, children: [
+                              Text(intToTimeString(_timerDuration),
+                                  style: TextStyle(
+                                      color: _timeOver
+                                          ? COLOR_WINE_RED_LIGHT
+                                          : COLOR_WHITE,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize:
+                                          _timerDuration >= 3600 ? 45 : 65)),
+                              !_timeOver
+                                  ? Positioned(
+                                      right: 20,
+                                      child: InkWell(
+                                        onTap: () => setState(() {
+                                          _timerDuration += 30;
+                                          _addedTimeInSeconds += 30;
+                                          _durationInSeconds += 30;
+                                          controller.reverse(
+                                              from: controller.value +
+                                                  _secondsToControllerValue(
+                                                      30));
+                                        }),
+                                        child: const Icon(
+                                          Icons.replay_30,
+                                          size: 40,
+                                          color: COLOR_GREY,
+                                        ),
+                                      ))
+                                  : const SizedBox.shrink(),
+                            ])),
+                        _timeOver
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                    "Usual habit duration: ${_activeHabit.duration}min",
+                                    style: const TextStyle(
+                                        color: COLOR_WHITE,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: 18)))
+                            : const SizedBox.shrink(),
+                        addVerticalSpace(padding * 2),
+                        LinearProgressIndicator(
+                          color: COLOR_GREY,
+                          backgroundColor: COLOR_DARK_BLUE_SHADE_LIGHT,
+                          value: controller.value,
+                          semanticsLabel: 'Linear progress indicator',
+                        ),
+                        addVerticalSpace(padding),
+                      ]),
+                    ),
+                    _activeHabit.desc.isEmpty
+                        ? addVerticalSpace(padding * 4)
+                        : Expanded(
+                            flex: 1,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: Text(
+                                _activeHabit.desc,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ),
+                    IconButton(
+                      iconSize: 25,
+                      color: COLOR_GREY,
+                      icon: Icon(_descExpanded
+                          ? FontAwesomeIcons.circleChevronUp
+                          : FontAwesomeIcons.circleChevronDown),
+                      onPressed: () => setState(() {
+                        _descExpanded = !_descExpanded;
+                      }),
                     ),
                     addVerticalSpace(padding),
-                    Text(
-                      _activeHabit.desc,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Container(
-                        width: size.width,
-                        child: Stack(alignment: Alignment.center, children: [
-                          Text(intToTimeString(_timerDuration),
-                              style: TextStyle(
-                                  color: _timeOver
-                                      ? COLOR_WINE_RED_LIGHT
-                                      : COLOR_WHITE,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 60)),
-                          // !_timeOver
-                          true
-                              ? Positioned(
-                                  right: 20,
-                                  child: InkWell(
-                                    onTap: () => setState(() {
-                                      _timerDuration += 30;
-                                      _addedTimeInSeconds += 30;
-                                      _durationInSeconds += 30;
-                                      controller.reverse(
-                                          from: controller.value +
-                                              _secondsToControllerValue(30));
-                                    }),
-                                    child: Icon(
-                                      Icons.replay_30,
-                                      size: 40,
-                                      color: COLOR_GREY,
-                                    ),
-                                  ))
-                              : const SizedBox.shrink(),
-                        ])),
-                    _timeOver
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(
-                                "Usual habit duration: ${_activeHabit.duration}min",
-                                style: const TextStyle(
-                                    color: COLOR_WHITE,
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 18)))
-                        : const SizedBox.shrink(),
-                    addVerticalSpace(padding * 2),
-                    LinearProgressIndicator(
-                      color: COLOR_GREY,
-                      backgroundColor: COLOR_DARK_BLUE_SHADE_LIGHT,
-                      value: controller.value,
-                      semanticsLabel: 'Linear progress indicator',
-                    ),
-                    addVerticalSpace(padding * 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
