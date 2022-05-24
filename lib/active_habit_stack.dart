@@ -13,6 +13,7 @@ import 'package:habit_stacker/utils/widget_functions.dart';
 import 'package:lottie/lottie.dart';
 import 'package:habit_stacker/utils/custom_functions.dart';
 import 'package:habit_stacker/habit_stack.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class ActiveHabitStack extends StatefulWidget {
   const ActiveHabitStack({required this.habitStack, Key? key})
@@ -56,6 +57,11 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
         if (_timerDuration > 0) {
           _timerDuration--;
         } else {
+          HapticFeedback.vibrate();
+          FlutterRingtonePlayer.play(
+            fromAsset: "assets/time-over.wav",
+            volume: 0.8,
+          );
           _timeOver = true;
           _timer?.cancel();
           _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -81,23 +87,21 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
   @override
   void initState() {
     //initialize active habit
-    setState(() {
-      _finishTime = _startingTime.plusMinutes(widget.habitStack.duration);
-      _totalDurationInSeconds = widget.habitStack.duration * 60;
-      _activeHabit = widget.habitStack.habits[0];
-      _durationInSeconds = _activeHabit.duration * 60;
-      _timerDuration = _durationInSeconds;
-      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        _startTimer();
-      });
+
+    _finishTime = _startingTime.plusMinutes(widget.habitStack.duration);
+    _totalDurationInSeconds = widget.habitStack.duration * 60;
+    _activeHabit = widget.habitStack.habits[0];
+    _durationInSeconds = _activeHabit.duration * 60;
+    _timerDuration = _durationInSeconds;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _startTimer();
     });
+
     //initialize progress animation
     controller = AnimationController(
         vsync: this, duration: Duration(seconds: _timerDuration))
       // upperBound: _timerDuration.toDouble())
-      ..addListener(() {
-        setState(() {});
-      });
+      ..addListener(() {});
     controller.reverse(from: (_timerDuration.toDouble()));
 
     _composition = _loadComposition();
@@ -149,9 +153,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
       controller = AnimationController(
           vsync: this, duration: Duration(seconds: _timerDuration))
         // upperBound: _timerDuration.toDouble())
-        ..addListener(() {
-          setState(() {});
-        });
+        ..addListener(() {});
       //reset animation
       controller.reverse(from: _timerDuration.toDouble());
     });
@@ -475,7 +477,8 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                                   ),
                                 ),
                               ),
-                        _activeHabit.desc.isEmpty
+                        _activeHabit.desc
+                                .isEmpty //YOU CAN USE EXPANSION PANEL WIDGET FOR THIS
                             ? const SizedBox.shrink()
                             : IconButton(
                                 iconSize: 25,
@@ -555,7 +558,7 @@ class _ActiveHabitStackState extends State<ActiveHabitStack>
                           if (nextIndex >= widget.habitStack.habits.length) {
                             return SizedBox.shrink();
                           }
-                          print(currentIndex);
+                          print(nextIndex);
                           final nextHabit = widget.habitStack.habits[nextIndex];
                           return ListTile(
                               leading: Icon(
