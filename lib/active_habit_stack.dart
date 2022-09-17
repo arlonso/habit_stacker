@@ -27,11 +27,6 @@ class ActiveHabitStack extends StatefulWidget {
 
 class _ActiveHabitStackState extends State<ActiveHabitStack>
     with TickerProviderStateMixin {
-  // final HabitStack _habitStack = HabitStack([
-  //   Habit("iss was", 4, "what is you doin??"),
-  //   Habit("trink was", 8),
-  //   Habit("sitz was", 10)
-  // ], "Top of the morning", 22);
 
   bool _timePaused = false;
   bool _timeOver = false;
